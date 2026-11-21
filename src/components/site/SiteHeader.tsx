@@ -10,7 +10,7 @@ import { CtaLink } from "./CtaLink";
 
 const NAV = [
   { href: "/#servicios", label: "Servicios" },
-  { href: "/#trabajos", label: "Trabajos" },
+  { href: "/showroom", label: "Showroom" },
   { href: "/#sobre-mi", label: "Sobre mí" },
   { href: "/#como-trabajamos", label: "Cómo trabajamos" },
   { href: "/#contacto", label: "Contacto" },

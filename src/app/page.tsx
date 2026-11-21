@@ -8,6 +8,7 @@ import { CtaLink, budgetHref } from "@/components/site/CtaLink";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { About } from "@/components/home/About";
+import { SHOWROOM_PHOTOS } from "@/content/showroom";
 import { Reviews } from "@/components/home/Reviews";
 import avatar from "@/assets/equipo/julio-cesar-avatar.jpg";
 import {
@@ -83,8 +84,8 @@ function Hero() {
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <CtaLink size="lg">Solicitar presupuesto</CtaLink>
-            <CtaLink href="/#trabajos" variant="outline" arrow={false} className="min-h-15">
-              Ver trabajos reales
+            <CtaLink href="/showroom" variant="outline" arrow={false} className="min-h-15">
+              Ver el showroom
             </CtaLink>
           </div>
           <ul className="mt-10 grid gap-3 text-[15px] font-semibold text-navy sm:grid-cols-3 sm:gap-4">
@@ -243,15 +244,9 @@ function Works() {
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SectionHeading eyebrow="Trabajos reales" title="Obras terminadas" text="Algunas de nuestras reformas terminadas." />
-          <a
-            href={siteConfig.social.instagram}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex min-h-12 items-center gap-2 rounded-full px-5 text-[15px] font-bold text-navy ring-1 ring-navy/20 transition hover:ring-navy"
-          >
-            <IconInstagram size={20} />
-            Ver más en Instagram
-          </a>
+          <CtaLink href="/showroom" variant="outline" size="md">
+            Ver el showroom completo
+          </CtaLink>
         </div>
         <ul className="mt-12 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-5">
           {WORKS.map((w, i) => (
@@ -272,6 +267,11 @@ function Works() {
             </li>
           ))}
         </ul>
+        <div className="mt-12 flex justify-center lg:mt-20">
+          <CtaLink href="/showroom" size="lg">
+            Ver las {SHOWROOM_PHOTOS.length} fotos del showroom
+          </CtaLink>
+        </div>
       </div>
     </section>
   );

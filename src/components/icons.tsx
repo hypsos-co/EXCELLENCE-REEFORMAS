@@ -166,6 +166,12 @@ export const IconTrash = (p: IconProps) => (
   </Icon>
 );
 
+export const IconExpand = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M14.5 4.5h5v5M9.5 19.5h-5v-5M19.5 4.5 13.5 10.5M4.5 19.5l6-6" />
+  </Icon>
+);
+
 /** Logotipo de WhatsApp (relleno). */
 export function IconWhatsApp({ size = 20, ...rest }: IconProps) {
   return (

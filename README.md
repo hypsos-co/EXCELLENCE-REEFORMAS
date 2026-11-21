@@ -9,6 +9,7 @@ directamente a Excellence Reformas.
 | Ruta | Qué es |
 | --- | --- |
 | `/` | Portada: hero, servicios (cada uno abre el asistente con ese tipo ya elegido), Smart Budget, trabajos reales, cómo trabajamos, «Conóceme», opiniones (si hay reales), contacto. |
+| `/showroom` | Galería de 45 trabajos reales con filtros por tipo de espacio y visor a pantalla completa (teclado, deslizar en móvil y botón «Quiero algo así» que abre el asistente con el tipo de reforma ya elegido). |
 | `/solicitar-presupuesto` | El asistente a pantalla completa. Admite `?tipo=integral\|cocina\|bano\|pintura\|albanileria\|otra`. |
 | `/politica-de-privacidad` | Política de privacidad (plantilla RGPD con los datos de `src/config/site.ts`). |
 | `POST /api/solicitudes` | Backend que valida, guarda y notifica cada solicitud. |
@@ -147,11 +148,21 @@ configurable en `src/lib/budget/uploads.ts`).
 
 ## 6. Fotografías
 
-Las fotos de la web son trabajos reales de la carpeta de Google Drive «TRABAJO». Se seleccionaron las
-mejor tomadas (encuadre centrado, verticales rectas, buena luz, obra terminada y sin objetos
-personales), se recortaron, se les aplicó un retoque suave y uniforme (niveles y equilibrio de
-blancos) y se eliminaron sus metadatos. Están en `src/assets/obras/`; para cambiar la foto de un tipo
-de reforma edita `src/components/budget/media.ts`.
+Todas las fotos son trabajos reales de la carpeta de Google Drive «TRABAJO» (631 archivos).
+Se revisaron una a una y se descartaron:
+
+- obra en curso (escombros, cables, plásticos de protección),
+- fotos con personas, objetos personales, juguetes o etiquetas de precio,
+- fachadas y exteriores de viviendas particulares,
+- fotos borrosas, oscuras, torcidas o duplicadas.
+
+Las elegidas se recortaron, se retocaron de forma suave y uniforme (niveles, equilibrio de blancos;
+más suave en las fotos con luz cálida para no perder el ambiente) y se les quitaron los metadatos
+(incluida la ubicación GPS).
+
+- `src/assets/obras/` → fotos de la portada y del asistente (`src/components/budget/media.ts`).
+- `src/assets/showroom/` → las 45 fotos del showroom. Títulos, descripciones y categorías en
+  `src/content/showroom.ts`; para añadir una foto, guárdala en esa carpeta y añade una línea.
 
 ## 7. Pruebas
 
@@ -168,7 +179,8 @@ npm run test:e2e
   (adjuntos, reintentos, duplicados, fallo del email).
 - `npm run test:e2e` (Playwright, móvil y escritorio): solicitud completa con fotos, validación,
   edición desde el resumen, volver atrás sin perder respuestas, navegación con teclado,
-  `prefers-reduced-motion` y preselección desde la portada.
+  `prefers-reduced-motion`, preselección desde la portada y el showroom (filtros, visor con
+  teclado y enlace al asistente).
 
 ## 8. Antes de publicar (checklist)
 
@@ -187,14 +199,17 @@ npm run test:e2e
 src/
   app/
     page.tsx                         Portada
+    showroom/page.tsx                Showroom (galería)
     solicitar-presupuesto/page.tsx   Asistente (lee ?tipo=)
     politica-de-privacidad/page.tsx
     api/solicitudes/route.ts         Backend de recepción
   components/
     budget/                          EXCELLENCE SMART BUDGET (pasos, resumen, éxito)
     site/                            Cabecera, pie y botones de llamada a la acción
+    showroom/                        Galería con filtros y visor
     brand/                           Logotipo vectorial oficial
   config/site.ts                     ⚙️  Configuración central
+  content/showroom.ts                Fotos del showroom (títulos y categorías)
   lib/budget/                        Opciones, esquema, resumen, WhatsApp (cliente + servidor)
   lib/server/                        Almacenamiento, email, anti-abuso (solo servidor)
   assets/obras/                      Fotografías de trabajos reales

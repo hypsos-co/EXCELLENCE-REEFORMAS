@@ -157,3 +157,31 @@ test("la portada presenta a Julio César y no muestra opiniones si no hay reales
   await expect(page.getByAltText(/Julio César, de Excellence Reformas/)).toBeVisible();
   await expect(page.locator("#opiniones")).toHaveCount(0);
 });
+
+test("showroom: filtra por tipo, abre el visor y lleva al asistente", async ({ page }) => {
+  await page.goto("/showroom", { waitUntil: "networkidle" });
+  await expect(page.getByRole("heading", { name: /Reformas reales, terminadas/i })).toBeVisible();
+  const items = page.getByRole("button", { name: /^Ver en grande:/ });
+  await expect(items).toHaveCount(45);
+
+  await page.getByRole("button", { name: /^Baños/ }).click();
+  await expect(page.getByRole("button", { name: /^Baños/ })).toHaveAttribute("aria-pressed", "true");
+  await expect(items).toHaveCount(10);
+
+  await items.first().click();
+  const dialog = page.locator("dialog[open]");
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toHaveAttribute("aria-label", /foto 1 de 10/);
+  await page.keyboard.press("ArrowRight");
+  await expect(dialog).toHaveAttribute("aria-label", /foto 2 de 10/);
+  await page.keyboard.press("ArrowLeft");
+  await page.keyboard.press("ArrowLeft");
+  await expect(dialog).toHaveAttribute("aria-label", /foto 10 de 10/);
+  await page.keyboard.press("Escape");
+  await expect(page.locator("dialog[open]")).toHaveCount(0);
+
+  await items.nth(1).click();
+  await page.getByRole("link", { name: /Quiero algo así/ }).click();
+  await expect(page).toHaveURL(/solicitar-presupuesto\?tipo=bano/);
+  await expect(page.locator('input[name=reform][value="bano"]')).toBeChecked();
+});

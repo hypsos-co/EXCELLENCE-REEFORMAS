@@ -72,8 +72,8 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
-              <Link href="/#trabajos" className="text-white/85 hover:text-white">
-                Trabajos reales
+              <Link href="/showroom" className="text-white/85 hover:text-white">
+                Showroom
               </Link>
             </li>
             <li>
