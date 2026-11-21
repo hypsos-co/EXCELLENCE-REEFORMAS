@@ -47,7 +47,7 @@ async function submitToNetlify({ draft, photos, honeypot }: SubmitInput): Promis
   const reference = makeReference(new Date());
   const body = buildNetlifyFormData(
     { ...draft, location: { ...draft.location, postalCode: draft.location.postalCode } },
-    { reference, photos: readyFiles(photos), honeypot, privacyVersion: siteConfig.legal.privacyPolicyVersion },
+    { reference, photos: readyFiles(photos), honeypot, privacyVersion: siteConfig.legal.privacyPolicyVersion, payload: toPayload(draft) },
   );
   try {
     // Sin cabecera Content-Type: el navegador la pone con el «boundary» del multipart.

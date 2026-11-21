@@ -104,6 +104,7 @@ export async function POST(request: NextRequest) {
       // Sin SMTP (y sin exigir email) se guarda una vista previa del aviso junto a la solicitud.
       email: cfg.email.mode === "unconfigured" ? { mode: "preview" } : cfg.email,
       requireEmail: cfg.requireEmail,
+      confirmClient: process.env.SEND_CLIENT_CONFIRMATION !== "false",
     },
     { raw, photos, idempotencyKey: request.headers.get("idempotency-key") ?? "" },
   );

@@ -1,5 +1,5 @@
 /** Páginas públicas (para sitemap.xml). Mantener en sincronía con scripts/build-netlify.mjs. */
-export const PUBLIC_PAGES = ["/", "/showroom", "/solicitar-presupuesto", "/politica-de-privacidad"] as const;
+export const PUBLIC_PAGES = ["/", "/showroom", "/solicitar-presupuesto", "/clientes", "/valoracion", "/politica-de-privacidad"] as const;
 
 export function robotsTxt(base: string | null): string {
   return `User-Agent: *\nAllow: /\nDisallow: /api/\nDisallow: /__forms.html\n${base ? `\nSitemap: ${base}/sitemap.xml\n` : ""}`;

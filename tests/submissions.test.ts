@@ -32,6 +32,7 @@ beforeEach(async () => {
       to: ["julio@example.com"],
     },
     requireEmail: true,
+    confirmClient: false,
     log: () => {},
   };
 });
@@ -171,5 +172,19 @@ describe("submitBudgetRequest", () => {
     if (!res.ok) return;
     const record = await readRecord(res.reference);
     expect(record.notification.status).toBe("preview");
+  });
+});
+
+describe("confirmación al cliente", () => {
+  it("envía un segundo email, al cliente, con su referencia", async () => {
+    const res = await submitBudgetRequest({ ...deps, confirmClient: true }, { raw: validRequest(), photos: [], idempotencyKey: crypto.randomUUID() });
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    expect(smtp.received).toHaveLength(2);
+    const toClient = smtp.received.find((m) => m.to && JSON.stringify(m.to).includes("lucia@example.com"))!;
+    expect(toClient.subject).toContain(res.reference);
+    expect(toClient.html).toContain("¿Qué pasa ahora?");
+    const toBusiness = smtp.received.find((m) => JSON.stringify(m.to).includes("julio@example.com"))!;
+    expect(toBusiness.subject).toContain("Nueva solicitud de presupuesto");
   });
 });

@@ -10,6 +10,7 @@ import { SiteHeader } from "@/components/site/SiteHeader";
 import { About } from "@/components/home/About";
 import { SHOWROOM_PHOTOS } from "@/content/showroom";
 import { Reviews } from "@/components/home/Reviews";
+import { Care } from "@/components/home/Care";
 import avatar from "@/assets/equipo/julio-cesar-avatar.jpg";
 import {
   IconArrowRight,
@@ -57,6 +58,7 @@ export default function HomePage() {
         <Process />
         <About />
         <Reviews />
+        <Care />
         <Contact />
       </main>
       <SiteFooter />

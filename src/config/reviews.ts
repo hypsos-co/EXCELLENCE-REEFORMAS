@@ -1,3 +1,5 @@
+import { siteConfig } from "./site";
+
 /**
  * OPINIONES DE CLIENTES
  * ---------------------------------------------------------------------------
@@ -31,9 +33,5 @@ export type Review = {
 
 export const reviews: Review[] = [];
 
-/**
- * Enlace para que los clientes dejen su opinión (p. ej. el enlace de reseñas
- * del Perfil de Empresa de Google: «Pedir reseñas» → copiar enlace).
- * Si está vacío, no se muestra el botón.
- */
-export const reviewLinkUrl = "";
+/** Enlace para dejar opinión en Google: se configura en src/config/site.ts → social.googleReviews. */
+export const reviewLinkUrl: string = siteConfig.social.googleReviews;

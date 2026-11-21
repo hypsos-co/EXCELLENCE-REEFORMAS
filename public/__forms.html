@@ -32,6 +32,8 @@
       <textarea name="resumen"></textarea>
       <textarea name="detalles"></textarea>
       <textarea name="descripcion"></textarea>
+      <input type="hidden" name="formulario" />
+      <input type="hidden" name="datos_json" />
       <input type="hidden" name="subject" />
       <input type="file" name="foto_1" />
       <input type="file" name="foto_2" />
@@ -39,6 +41,51 @@
       <input type="file" name="foto_4" />
       <input type="file" name="foto_5" />
       <input type="file" name="foto_6" />
+      <input type="text" name="bot-field" />
+    </form>
+
+    <!-- Valoración de clientes (página /valoracion) -->
+    <form name="valoracion" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input type="hidden" name="form-name" value="valoracion" />
+      <input type="text" name="nombre" />
+      <input type="tel" name="telefono" />
+      <input type="email" name="email" />
+      <input type="text" name="referencia" />
+      <input type="text" name="puntuacion" />
+      <input type="text" name="estrellas" />
+      <input type="text" name="fase" />
+      <input type="text" name="atencion" />
+      <input type="text" name="destacado" />
+      <input type="text" name="quiere_llamada" />
+      <input type="text" name="publicar" />
+      <input type="text" name="privacidad" />
+      <input type="text" name="enviado_el" />
+      <textarea name="comentario"></textarea>
+      <input type="hidden" name="formulario" />
+      <input type="hidden" name="datos_json" />
+      <input type="hidden" name="subject" />
+      <input type="text" name="bot-field" />
+    </form>
+
+    <!-- Posventa: revisiones, arreglos y dudas (página /clientes) -->
+    <form name="posventa" method="POST" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" hidden>
+      <input type="hidden" name="form-name" value="posventa" />
+      <input type="text" name="nombre" />
+      <input type="tel" name="telefono" />
+      <input type="email" name="email" />
+      <input type="text" name="referencia" />
+      <input type="text" name="localidad" />
+      <input type="text" name="tipo_ayuda" />
+      <input type="text" name="urgencia" />
+      <input type="text" name="privacidad" />
+      <input type="text" name="enviado_el" />
+      <textarea name="descripcion"></textarea>
+      <input type="hidden" name="formulario" />
+      <input type="hidden" name="datos_json" />
+      <input type="hidden" name="subject" />
+      <input type="file" name="foto_1" />
+      <input type="file" name="foto_2" />
+      <input type="file" name="foto_3" />
       <input type="text" name="bot-field" />
     </form>
   </body>

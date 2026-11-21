@@ -87,6 +87,16 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
+              <Link href="/clientes" className="text-white/85 hover:text-white">
+                Área de clientes
+              </Link>
+            </li>
+            <li>
+              <Link href="/valoracion" className="text-white/85 hover:text-white">
+                Valora tu experiencia
+              </Link>
+            </li>
+            <li>
               <Link href="/politica-de-privacidad" className="text-white/85 hover:text-white">
                 Política de privacidad
               </Link>

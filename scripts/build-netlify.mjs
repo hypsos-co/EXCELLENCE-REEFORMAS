@@ -17,7 +17,7 @@ run("node", ["scripts/export-images.mjs", "out/_next/static/media"]);
 // Mantener PAGES en sincronía con src/lib/seo.ts.
 const configured = /domain:\s*"([^"]*)"/.exec(readFileSync("src/config/site.ts", "utf8"))?.[1] ?? "";
 const base = (configured || process.env.URL || "").replace(/\/+$/, "");
-const PAGES = ["/", "/showroom", "/solicitar-presupuesto", "/politica-de-privacidad"];
+const PAGES = ["/", "/showroom", "/solicitar-presupuesto", "/clientes", "/valoracion", "/politica-de-privacidad"];
 writeFileSync(
   "out/robots.txt",
   `User-Agent: *\nAllow: /\nDisallow: /api/\nDisallow: /__forms.html\n${base ? `\nSitemap: ${base}/sitemap.xml\n` : ""}`,

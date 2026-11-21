@@ -99,6 +99,12 @@ export function SuccessScreen({
           <p className="mx-auto mt-8 max-w-md text-sm leading-relaxed text-steel-soft">
             Guarda tu referencia: te ayudará a identificar tu proyecto cuando hables con nosotros.
           </p>
+          <Link
+            href="/clientes"
+            className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-white underline decoration-white/40 underline-offset-4 hover:decoration-white"
+          >
+            Conoce tu área de cliente: valoraciones, revisiones y consejos
+          </Link>
         </motion.div>
       </div>
     </main>

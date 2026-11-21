@@ -3,6 +3,7 @@ import { budgetRequestSchema, issuesToFieldErrors, normalizePhone, type BudgetRe
 import { UPLOAD_LIMITS } from "@/lib/budget/uploads";
 import { normalizeText, serviceZone } from "@/lib/budget/zone";
 import { buildNotificationEmail, sendNotification, type Attachment } from "./email";
+import { buildBudgetConfirmation } from "@/lib/email/templates";
 import type { EmailConfig } from "./env";
 import { displayName, sniffImage } from "./files";
 import { formatMadrid, makeReference, recordKey, type StoredPhoto, type StoredRequest } from "./record";
@@ -15,6 +16,8 @@ export type SubmitDeps = {
   email: EmailConfig;
   /** Si es true, solo se confirma al cliente cuando el email ha salido. */
   requireEmail: boolean;
+  /** Enviar al cliente un email de confirmación (por defecto, sí). */
+  confirmClient?: boolean;
   now?: () => Date;
   log?: (msg: string, extra?: unknown) => void;
 };
@@ -155,6 +158,7 @@ async function processSubmission(
     }));
     const notified = await notify(deps, key, record, attachments, log);
     if (!notified && deps.requireEmail) return notificationFailed(reference);
+    if (deps.confirmClient !== false) await confirmClient(deps, key, record, log);
     return { ok: true, status: 201, reference, duplicate: false };
   } catch (err) {
     log("Error guardando la solicitud", err);
@@ -230,5 +234,18 @@ async function notify(
     };
     await putJson(deps.storage, key, record).catch((e) => log("No se pudo actualizar el estado del aviso", e));
     return false;
+  }
+}
+
+/** Confirmación al cliente. No bloquea la solicitud: si falla, solo se registra. */
+async function confirmClient(deps: SubmitDeps, key: string, record: StoredRequest, log: NonNullable<SubmitDeps["log"]>) {
+  try {
+    const message = buildBudgetConfirmation(record);
+    const res = await sendNotification(deps.email, message, [record.request.contact.email]);
+    if (res.status === "preview") {
+      await deps.storage.put(key.replace(/solicitud\.json$/, "email-cliente-preview.html"), message.html, "text/html; charset=utf-8");
+    }
+  } catch (err) {
+    log(`No se pudo enviar la confirmación al cliente de ${record.reference}`, err);
   }
 }

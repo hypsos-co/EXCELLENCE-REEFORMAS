@@ -10,7 +10,10 @@ import {
 } from "@/lib/budget/netlify-form";
 
 const skeleton = readFileSync("public/__forms.html", "utf8");
-const skeletonFields = [...skeleton.matchAll(/<(?:input|textarea)[^>]*\sname="([^"]+)"/g)].map((m) => m[1]).filter((n) => n !== "form-name");
+const formBlock = (name: string) => new RegExp(`<form[^>]*name="${name}"[\\s\\S]*?</form>`).exec(skeleton)![0];
+const fieldsOf = (name: string) =>
+  [...formBlock(name).matchAll(/<(?:input|textarea)[^>]*\sname="([^"]+)"/g)].map((m) => m[1]).filter((n) => n !== "form-name");
+const skeletonFields = fieldsOf(NETLIFY_FORM_NAME);
 
 const draft: NetlifyDraft = {
   reform: { primary: "cocina", extras: ["bano"] },
@@ -36,7 +39,7 @@ describe("Netlify Forms", () => {
 
   it("el primer campo de texto es el nombre y el primer textarea el resumen (título y cuerpo en Netlify)", () => {
     expect(skeleton.indexOf('name="nombre"')).toBeLessThan(skeleton.indexOf('name="telefono"'));
-    expect(skeleton.match(/<textarea name="([^"]+)"/)?.[1]).toBe("resumen");
+    expect(formBlock(NETLIFY_FORM_NAME).match(/<textarea name="([^"]+)"/)?.[1]).toBe("resumen");
   });
 
   it("el envío solo usa campos registrados y una foto por campo", () => {
@@ -60,5 +63,24 @@ describe("Netlify Forms", () => {
     expect(resumen).toContain("FUERA de la zona habitual");
     expect(resumen).toContain("WhatsApp del cliente: https://wa.me/34612345678");
     expect(resumen).toContain("Fotos adjuntas: 6");
+  });
+});
+
+import { AFTERCARE_FIELDS, AFTERCARE_FORM, FEEDBACK_FIELDS, FEEDBACK_FORM, aftercareFields, feedbackFields } from "@/lib/forms/netlify-fields";
+import { feedbackSchema } from "@/lib/forms/feedback";
+import { aftercareSchema } from "@/lib/forms/aftercare";
+
+describe("Netlify Forms: valoración y posventa", () => {
+  it("los esqueletos coinciden con el código", () => {
+    expect(fieldsOf(FEEDBACK_FORM)).toEqual([...FEEDBACK_FIELDS]);
+    expect(fieldsOf(AFTERCARE_FORM)).toEqual([...AFTERCARE_FIELDS]);
+    expect(formBlock(AFTERCARE_FORM)).toContain('enctype="multipart/form-data"');
+  });
+  it("generan solo campos registrados", () => {
+    const f = feedbackSchema.parse({ rating: 4, care: "si", highlights: ["trato"], name: "Ana", privacy: true });
+    expect(Object.keys(feedbackFields(f)).sort()).toEqual([...FEEDBACK_FIELDS].sort());
+    expect(feedbackFields(f).estrellas).toBe("★★★★☆");
+    const a = aftercareSchema.parse({ kind: "revision", description: "Revisar la junta de la ducha", name: "Pedro", phone: "600111222", privacy: true });
+    expect(Object.keys(aftercareFields(a)).every((k) => (AFTERCARE_FIELDS as readonly string[]).includes(k))).toBe(true);
   });
 });

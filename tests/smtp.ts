@@ -15,7 +15,7 @@ export async function startSmtp() {
         stream.on("end", () => callback(Object.assign(new Error("Buzón no disponible"), { responseCode: 550 })));
         return;
       }
-      simpleParser(stream)
+      simpleParser(stream, { keepCidLinks: true })
         .then((mail) => {
           received.push(mail);
           callback();

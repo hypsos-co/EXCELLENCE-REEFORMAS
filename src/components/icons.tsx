@@ -172,6 +172,80 @@ export const IconExpand = (p: IconProps) => (
   </Icon>
 );
 
+export const IconShare = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 15V3.5M7.5 8 12 3.5 16.5 8" />
+    <path d="M5 12.5V19a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-6.5" />
+  </Icon>
+);
+export const IconDownload = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 3.5V15M7.5 10.5 12 15l4.5-4.5" />
+    <path d="M5 17.5v1A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5v-1" />
+  </Icon>
+);
+export const IconTool = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M14.5 6.5a4 4 0 0 0 5 5L12 19a2.1 2.1 0 0 1-3-3l7.5-7.5a4 4 0 0 0-2-2Z" />
+    <path d="M14.5 6.5 17 4l3 3-2.5 2.5" />
+  </Icon>
+);
+export const IconHeart = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.4a4.3 4.3 0 0 1 7.5 2.4C19.5 15.4 12 20 12 20Z" />
+  </Icon>
+);
+export const IconBook = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4.5 5.5A2 2 0 0 1 6.5 3.5H19v14H6.5a2 2 0 0 0-2 2v-14Z" />
+    <path d="M4.5 19.5a2 2 0 0 0 2 2H19M8.5 7.5h6" />
+  </Icon>
+);
+
+export function IconStar({ size = 20, filled = false, ...rest }: IconProps & { filled?: boolean }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round" {...rest}>
+      <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9L12 3Z" />
+    </svg>
+  );
+}
+
+export function IconFacebook({ size = 20, ...rest }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" {...rest}>
+      <path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.3H7.9v3h2.6V21h3Z" />
+    </svg>
+  );
+}
+export function IconTikTok({ size = 20, ...rest }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" {...rest}>
+      <path d="M16.6 3c.3 2.2 1.6 3.6 3.9 3.8v2.6c-1.4.1-2.6-.3-3.9-1.1v5.6c0 3.6-2.6 5.9-5.8 5.9a5.6 5.6 0 0 1-5.6-5.7c0-3.5 3-6 6.6-5.5v2.8c-1.6-.4-3.7.4-3.7 2.6 0 1.6 1.2 2.8 2.7 2.8 1.6 0 2.9-1 2.9-3.1V3h2.9Z" />
+    </svg>
+  );
+}
+export function IconYouTube({ size = 20, ...rest }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" {...rest}>
+      <path d="M21.6 7.2a2.5 2.5 0 0 0-1.8-1.8C18.2 5 12 5 12 5s-6.2 0-7.8.4A2.5 2.5 0 0 0 2.4 7.2 26 26 0 0 0 2 12a26 26 0 0 0 .4 4.8 2.5 2.5 0 0 0 1.8 1.8C5.8 19 12 19 12 19s6.2 0 7.8-.4a2.5 2.5 0 0 0 1.8-1.8A26 26 0 0 0 22 12a26 26 0 0 0-.4-4.8ZM10 15V9l5.2 3-5.2 3Z" />
+    </svg>
+  );
+}
+export function IconLinkedIn({ size = 20, ...rest }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" {...rest}>
+      <path d="M6.9 8.7H3.8V20h3.1V8.7ZM5.4 4a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6ZM20.2 13.4c0-3-1.6-4.9-4.3-4.9a3.7 3.7 0 0 0-3.3 1.8V8.7H9.6V20h3.1v-6c0-1.6.6-2.8 2.2-2.8 1.5 0 2.1 1.1 2.1 2.8v6h3.2v-6.6Z" />
+    </svg>
+  );
+}
+export function IconGoogle({ size = 20, ...rest }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false" {...rest}>
+      <path d="M21.6 12.2c0-.7-.1-1.3-.2-1.9H12v3.6h5.4a4.6 4.6 0 0 1-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.2ZM12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.1H3.1v2.6A10 10 0 0 0 12 22ZM6.4 14c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2V7.4H3.1A10 10 0 0 0 2 12c0 1.6.4 3.2 1.1 4.6L6.4 14ZM12 5.9c1.5 0 2.8.5 3.8 1.5l2.9-2.9A10 10 0 0 0 3.1 7.4L6.4 10c.8-2.4 3-4.1 5.6-4.1Z" />
+    </svg>
+  );
+}
+
 /** Logotipo de WhatsApp (relleno). */
 export function IconWhatsApp({ size = 20, ...rest }: IconProps) {
   return (

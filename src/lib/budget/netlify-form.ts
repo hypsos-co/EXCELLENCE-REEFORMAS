@@ -41,6 +41,8 @@ export const NETLIFY_FIELDS = [
   "resumen",
   "detalles",
   "descripcion",
+  "formulario",
+  "datos_json",
   "subject",
   ...NETLIFY_PHOTO_FIELDS,
   NETLIFY_HONEYPOT,
@@ -86,7 +88,7 @@ export function netlifySummary(d: NetlifyDraft, reference: string, photoCount: n
  */
 export function buildNetlifyFormData(
   d: NetlifyDraft,
-  opts: { reference: string; photos: File[]; honeypot: string; privacyVersion: string; now?: Date },
+  opts: { reference: string; photos: File[]; honeypot: string; privacyVersion: string; now?: Date; payload?: unknown },
 ): FormData {
   const now = opts.now ?? new Date();
   const zone = serviceZone({ locality: d.location.locality, province: d.location.province });
@@ -110,6 +112,9 @@ export function buildNetlifyFormData(
   fd.append("resumen", netlifySummary(d, opts.reference, opts.photos.length));
   fd.append("detalles", detailRows(d).map((r) => `${r.label}: ${r.value}`).join("\n") || "Sin detalles");
   fd.append("descripcion", d.description.trim());
+  fd.append("formulario", NETLIFY_FORM_NAME);
+  // Datos estructurados: la función de Netlify los usa para el email visual.
+  fd.append("datos_json", opts.payload === undefined ? "" : JSON.stringify(opts.payload));
   fd.append("subject", `Nueva solicitud ${opts.reference} · ${title} · ${d.location.locality.trim()}`);
   opts.photos.slice(0, NETLIFY_PHOTO_FIELDS.length).forEach((file, i) => fd.append(NETLIFY_PHOTO_FIELDS[i], file, file.name));
   fd.append(NETLIFY_HONEYPOT, opts.honeypot);

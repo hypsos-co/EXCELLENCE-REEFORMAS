@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { getSiteUrl, hasPublicSiteUrl, siteConfig } from "@/config/site";
 import hero from "@/assets/obras/hero.jpg";
+import { WhatsAppButton } from "@/components/site/WhatsAppButton";
+import { PwaRegister } from "@/components/site/PwaRegister";
 import "./globals.css";
 
 const manrope = localFont({
@@ -27,6 +29,9 @@ export const metadata: Metadata = {
   },
   description:
     "Reformas integrales, cocinas, baños, pintura y albañilería en Madrid y alrededores. Cuéntanos tu proyecto con Excellence Smart Budget. Tu casa también merece un Glow Up.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, title: "Excellence", statusBarStyle: "default" },
+  icons: { apple: "/icons/apple-touch-icon.png" },
   openGraph: {
     type: "website",
     locale: "es_ES",
@@ -48,7 +53,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="es" className={`${manrope.variable} ${archivo.variable}`}>
-      <body className="min-h-dvh">{children}</body>
+      <body className="min-h-dvh">
+        {children}
+        <WhatsAppButton />
+        <PwaRegister />
+      </body>
     </html>
   );
 }

@@ -31,16 +31,31 @@ export const siteConfig = {
     /**
      * Número de WhatsApp en formato internacional SOLO con dígitos
      * (sin "+", espacios ni guiones). Ejemplo: "34600000000".
-     * Si está vacío, el botón «Continuar por WhatsApp» no se muestra.
+     * Si está vacío, los botones de WhatsApp no se muestran.
+     * También se puede definir sin tocar el código con la variable de entorno
+     * NEXT_PUBLIC_WHATSAPP_NUMBER (por ejemplo, en Netlify) y volviendo a publicar.
      */
-    whatsapp: "",
+    whatsapp: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "",
     /** Email público de contacto. Ejemplo: "info@excellencereformas.es". */
     email: "",
   },
 
+  /** Mensaje con el que se abre WhatsApp desde el botón flotante de la web. */
+  whatsappMessage: "Hola Julio César, vengo de la web de Excellence Reformas y me gustaría hablar sobre una reforma.",
+
+  /** Redes sociales. Las que estén vacías no se muestran. */
   social: {
     instagram: "https://www.instagram.com/excellencereformas.es/",
     instagramHandle: "@excellencereformas.es",
+    facebook: "",
+    tiktok: "",
+    youtube: "",
+    linkedin: "",
+    /**
+     * Enlace para dejar una reseña en Google (Perfil de Empresa de Google →
+     * «Pedir reseñas» → copiar enlace). Si está vacío no se muestra.
+     */
+    googleReviews: "",
   },
 
   /**
@@ -121,6 +136,11 @@ export function getSiteUrl(): URL {
 /** true si se conoce la dirección pública real (dominio o URL del hosting). */
 export function hasPublicSiteUrl(): boolean {
   return getSiteUrl().hostname !== "localhost";
+}
+
+/** URL absoluta de una página de la web, o null si aún no hay dominio público. */
+export function absoluteUrl(path: string): string | null {
+  return hasPublicSiteUrl() ? new URL(path, getSiteUrl()).toString() : null;
 }
 
 export function hasWhatsApp(): boolean {
