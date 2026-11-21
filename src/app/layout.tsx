@@ -52,7 +52,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es" className={`${manrope.variable} ${archivo.variable}`}>
+    <html lang="es" data-scroll-behavior="smooth" className={`${manrope.variable} ${archivo.variable}`}>
       <body className="min-h-dvh">
         {children}
         <WhatsAppButton />

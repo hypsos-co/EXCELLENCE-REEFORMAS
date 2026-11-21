@@ -8,14 +8,17 @@ directamente a Excellence Reformas.
 
 | Ruta | Qué es |
 | --- | --- |
-| `/` | Portada: hero, servicios (cada uno abre el asistente con ese tipo ya elegido), Smart Budget, trabajos reales, cómo trabajamos, «Conóceme», opiniones (si hay reales), contacto. |
+| `/` | Portada: escena nocturna «Valle de luz» (3D), franja de confianza, servicios (cada uno abre el asistente con ese tipo ya elegido), Smart Budget, trabajos reales, cómo trabajamos, «Conóceme», opiniones (si hay reales), cuidado de clientes, contacto. |
 | `/showroom` | Galería de 45 trabajos reales con filtros por tipo de espacio y visor a pantalla completa (teclado, deslizar en móvil y botón «Quiero algo así» que abre el asistente con el tipo de reforma ya elegido). |
 | `/solicitar-presupuesto` | El asistente a pantalla completa. Admite `?tipo=integral\|cocina\|bano\|pintura\|albanileria\|otra`. |
+| `/valoracion` | Valoración del cliente (1 a 5 estrellas, comentario, «¿te sientes bien atendido?», petición de llamada) y botones para seguir en redes. Una valoración baja o un «no» avisa a Julio César como **urgente**. |
+| `/clientes` | **Área de clientes** (app instalable en el móvil): valorar la obra, pedir una revisión o arreglo posventa con fotos, guía de cuidados, pedir otra reforma y recomendar a un amigo. |
 | `/politica-de-privacidad` | Política de privacidad (plantilla RGPD con los datos de `src/config/site.ts`). |
-| `POST /api/solicitudes` | Backend que valida, guarda y notifica cada solicitud. |
+| `POST /api/solicitudes` | Backend que valida, guarda y notifica cada solicitud (versión con servidor). |
+| `POST /api/formularios` | Valoraciones y consultas posventa (versión con servidor). |
 
 Tecnología: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, Motion (Framer Motion),
-Zod, Nodemailer. Tipografías Archivo y Manrope alojadas en el propio proyecto (sin llamadas a Google Fonts).
+three.js (portada), Zod, Nodemailer. Tipografías Archivo y Manrope alojadas en el propio proyecto (sin llamadas a Google Fonts).
 
 ---
 
@@ -52,6 +55,29 @@ Un único archivo para cambiar lo que se muestra en la web:
 
 Los campos vacíos se ocultan: por ejemplo, el botón «CONTINUAR POR WHATSAPP» solo aparece cuando hay
 un número de WhatsApp válido (mientras tanto, la pantalla final enlaza a Instagram).
+
+**WhatsApp.** El número se puede escribir en `src/config/site.ts` o, sin tocar el código, en la
+variable `NEXT_PUBLIC_WHATSAPP_NUMBER` de Netlify (*Site configuration → Environment variables*,
+solo dígitos con prefijo, p. ej. `34612345678`) y volver a publicar. Con número configurado aparece
+el **botón flotante animado** en todas las páginas (en la portada, al bajar de la escena nocturna;
+nunca dentro del asistente, que tiene el suyo al final) con el mensaje «¿Hablamos?».
+
+**Redes sociales.** `social` en `src/config/site.ts`: Instagram ya está; Facebook, TikTok, YouTube,
+LinkedIn y el enlace de reseñas de Google aparecen solos en el pie, en `/valoracion` y en `/clientes`
+en cuanto se rellenan.
+
+### Portada nocturna «Valle de luz»
+
+`src/components/home/night/` — diseño propio (no reutiliza código ni recursos de terceros):
+
+- `scene.ts`: miles de luces en tres colores de la marca sobre un valle nocturno infinito. Florecen
+  (cinco pétalos) al acercarse, se apartan del cursor y, al pasar el ratón o el foco por el botón
+  redondo, **se reúnen formando las casas del logotipo** mientras el titular se atenúa.
+- `ambient.ts`: sonido ambiente generado en el navegador (sin archivos). Empieza **apagado** y solo
+  suena si la persona pulsa el altavoz.
+- Rendimiento y accesibilidad: three.js (~134 KB comprimido) se descarga después de mostrar la
+  página y solo en la portada; menos partículas en móvil; se pausa fuera de pantalla o con la pestaña
+  oculta. Con «reducir movimiento» se muestra una imagen fija, y sin WebGL, un cielo estático.
 
 ### Textos de la portada
 
@@ -162,6 +188,21 @@ abren desde el panel con un enlace directo (no publicado en la web, pero quien t
 puede verlo); no hay detección de duplicados en el servidor; y el número de solicitudes y el espacio
 para archivos dependen del plan de Netlify (revisa sus límites de Forms).
 
+### Emails visuales y confirmación al cliente (opcional, recomendado)
+
+Además del aviso estándar de Netlify, la función `netlify/functions/formularios.mts` envía para cada
+envío un **email visual y ordenado** (fotos dentro del email, botones Llamar / WhatsApp / Responder,
+estrellas en las valoraciones, «URGENTE» si el cliente no se siente bien atendido) y, si el cliente
+dejó su email, una **confirmación** con su referencia.
+
+1. Despliega **conectando el repositorio** (opción B) o con Netlify CLI: las funciones no se publican
+   arrastrando la carpeta.
+2. En *Site configuration → Environment variables*, con alcance **Functions**:
+   `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`, `NOTIFY_EMAIL_TO`
+   y, si no quieres confirmación al cliente, `SEND_CLIENT_CONFIRMATION=false`.
+3. Vuelve a publicar y haz una prueba. Sin estas variables la función no hace nada y sigue llegando
+   el aviso estándar de Netlify.
+
 Para ver la versión estática en local: `npm run build:netlify` y `npm run preview:netlify`
 (http://localhost:4000, con un Netlify simulado que guarda los envíos en `.data-netlify/`).
 
@@ -226,16 +267,18 @@ npm run test:e2e:netlify
 - `npm run test:e2e` (Playwright, móvil y escritorio): solicitud completa con fotos, validación,
   edición desde el resumen, volver atrás sin perder respuestas, navegación con teclado,
   `prefers-reduced-motion`, preselección desde la portada y el showroom (filtros, visor con
-  teclado y enlace al asistente).
+  teclado y enlace al asistente), portada nocturna (botón y sonido), botón de WhatsApp y valoración.
 - `npm run test:e2e:netlify`: compila la versión HTML y la prueba con un Netlify simulado (envío
-  real a Netlify Forms con fotos, error sin éxito falso, todas las páginas y fotos sin errores, 404).
+  real a Netlify Forms con fotos, valoración, posventa, error sin éxito falso, todas las páginas y
+  fotos sin errores, 404, app instalable).
 
 ## 9. Antes de publicar (checklist)
 
-- [ ] `src/config/site.ts`: dominio, teléfono, WhatsApp, email público.
+- [ ] `src/config/site.ts`: dominio, teléfono, WhatsApp (o `NEXT_PUBLIC_WHATSAPP_NUMBER`), email público.
 - [ ] `src/config/site.ts → legal`: titular, NIF/CIF, domicilio y email de privacidad.
 - [ ] Revisión legal de la política de privacidad (es una plantilla).
 - [ ] **Netlify:** detección de formularios activada + notificación por email a un miembro del equipo.
+- [ ] **Netlify (emails visuales):** despliegue desde Git o CLI + variables SMTP con alcance Functions.
 - [ ] **Servidor propio (alternativa):** variables SMTP + `NOTIFY_EMAIL_TO` y bucket privado `S3_*`.
 - [ ] Revisar el texto de «Conóceme» (`src/config/about.ts`).
 - [ ] Añadir opiniones reales de clientes en `src/config/reviews.ts` cuando las tengáis.
@@ -249,17 +292,23 @@ src/
     page.tsx                         Portada
     showroom/page.tsx                Showroom (galería)
     solicitar-presupuesto/page.tsx   Asistente (lee ?tipo=)
+    valoracion/page.tsx              Valoración del cliente
+    clientes/page.tsx                Área de clientes (app instalable)
     politica-de-privacidad/page.tsx
-    api/solicitudes/route.ts         Backend de recepción
+    api/*/route.server.ts            Backend (solo versión con servidor)
   components/
+    home/night/                      Portada nocturna 3D y sonido ambiente
     budget/                          EXCELLENCE SMART BUDGET (pasos, resumen, éxito)
-    site/                            Cabecera, pie y botones de llamada a la acción
+    forms/                           Valoración y posventa
+    site/                            Cabecera, pie, botones y WhatsApp flotante
     showroom/                        Galería con filtros y visor
     brand/                           Logotipo vectorial oficial
   config/site.ts                     ⚙️  Configuración central
   content/showroom.ts                Fotos del showroom (títulos y categorías)
   lib/budget/                        Opciones, esquema, resumen, WhatsApp (cliente + servidor)
+  lib/email/                         Plantillas de email visuales (aviso + confirmación)
   lib/server/                        Almacenamiento, email, anti-abuso (solo servidor)
+netlify/functions/formularios.mts    Emails visuales en Netlify
   assets/obras/                      Fotografías de trabajos reales
 tests/  e2e/                         Pruebas
 ```
@@ -268,4 +317,4 @@ tests/  e2e/                         Pruebas
 
 - Panel privado para consultar y marcar solicitudes (hoy se gestionan desde el email y el bucket).
 - Límite de envíos global con Redis/Upstash (el actual es por instancia).
-- Email de confirmación al cliente, si se desea.
+- Recordatorios automáticos de revisión (por ejemplo, al año de la obra) desde el área de clientes.

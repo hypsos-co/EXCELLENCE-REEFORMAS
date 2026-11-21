@@ -132,3 +132,35 @@
     opacity: 0;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/*  Portada nocturna «Valle de luz»                                    */
+/* ------------------------------------------------------------------ */
+@keyframes hero-night-pulse {
+  50% {
+    transform: scale(0.4);
+    opacity: 0.4;
+  }
+}
+.hero-night-dot {
+  animation: hero-night-pulse 1.2s ease-in-out infinite;
+}
+.hero-night-sky {
+  background:
+    radial-gradient(90% 34% at 50% 56%, rgb(114 146 176 / 0.2) 0%, rgb(28 61 99 / 0.16) 45%, transparent 75%),
+    linear-gradient(180deg, #040b15 0%, #071628 40%, #0b2038 56%, #081a2e 70%, #06111f 100%);
+}
+.hero-night-fallback {
+  background:
+    radial-gradient(1px 1px at 20% 70%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 35% 80%, #a9bed3 50%, transparent 51%),
+    radial-gradient(1px 1px at 62% 74%, #ffd48a 50%, transparent 51%),
+    radial-gradient(2px 2px at 78% 84%, #e9eef3 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 48% 90%, #7292b0 50%, transparent 51%),
+    radial-gradient(ellipse at 50% 100%, #1c3d63 0%, #06111f 60%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-night-dot {
+    animation: none;
+  }
+}

@@ -152,6 +152,21 @@ test("la portada lleva al asistente con el tipo preseleccionado", async ({ page 
   await expect(page.locator('input[name=reform][value="bano"]')).toBeChecked();
 });
 
+test("portada nocturna: titular, botón al asistente y sonido desactivado por defecto", async ({ page }) => {
+  await page.goto("/", { waitUntil: "networkidle" });
+  const hero = page.locator("section.hero-night");
+  await expect(page.getByRole("heading", { level: 1, name: /Tu casa también merece un Glow Up/i })).toBeVisible({ timeout: 8000 });
+  await expect(hero.locator("canvas, .hero-night-fallback").first()).toBeAttached();
+  const sound = hero.getByRole("button", { name: "Activar sonido ambiente" });
+  await expect(sound).toHaveAttribute("aria-pressed", "false");
+  await sound.click();
+  await expect(hero.getByRole("button", { name: "Silenciar sonido ambiente" })).toHaveAttribute("aria-pressed", "true");
+  await hero.getByRole("button", { name: "Silenciar sonido ambiente" }).click();
+  await expect(sound).toHaveAttribute("aria-pressed", "false");
+  await hero.getByRole("link", { name: "Solicitar presupuesto" }).click();
+  await expect(page).toHaveURL(/\/solicitar-presupuesto$/);
+});
+
 test("la portada presenta a Julio César y no muestra opiniones si no hay reales", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /Hola, soy Julio César/i })).toBeVisible();
@@ -190,6 +205,9 @@ test("showroom: filtra por tipo, abre el visor y lleva al asistente", async ({ p
 test("botón flotante de WhatsApp: abre el número configurado y no estorba en el asistente", async ({ page }) => {
   await page.goto("/", { waitUntil: "networkidle" });
   const fab = page.getByRole("link", { name: /Hablar por WhatsApp con Julio César/ });
+  // En la portada aparece al bajar de la escena nocturna.
+  await expect(fab).toHaveCount(0);
+  await page.evaluate(() => window.scrollTo(0, window.innerHeight));
   await expect(fab).toBeVisible();
   const href = await fab.getAttribute("href");
   expect(href).toMatch(/^https:\/\/wa\.me\/34600000000\?text=/);

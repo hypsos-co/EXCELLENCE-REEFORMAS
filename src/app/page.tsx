@@ -2,7 +2,7 @@ import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
 import { siteConfig, telHref } from "@/config/site";
 import { REFORM_TYPES } from "@/lib/budget/options";
-import { DEFAULT_MEDIA, REFORM_MEDIA } from "@/components/budget/media";
+import { REFORM_MEDIA } from "@/components/budget/media";
 import { LogoHouses } from "@/components/brand/Logo";
 import { CtaLink, budgetHref } from "@/components/site/CtaLink";
 import { SiteFooter } from "@/components/site/SiteFooter";
@@ -11,6 +11,7 @@ import { About } from "@/components/home/About";
 import { SHOWROOM_PHOTOS } from "@/content/showroom";
 import { Reviews } from "@/components/home/Reviews";
 import { Care } from "@/components/home/Care";
+import { HeroNight } from "@/components/home/night/HeroNight";
 import avatar from "@/assets/equipo/julio-cesar-avatar.jpg";
 import {
   IconArrowRight,
@@ -20,7 +21,6 @@ import {
   IconInstagram,
   IconMail,
   IconPhone,
-  IconPin,
   IconRuler,
   IconShield,
   IconSpark,
@@ -49,9 +49,10 @@ const WORKS: { src: StaticImageData; title: string; alt: string }[] = [
 export default function HomePage() {
   return (
     <>
-      <SiteHeader />
+      <SiteHeader overlay />
       <main id="contenido">
-        <Hero />
+        <HeroNight />
+        <TrustStrip />
         <Services />
         <SmartBudget />
         <Works />
@@ -66,80 +67,38 @@ export default function HomePage() {
   );
 }
 
-/* --------------------------------- Hero --------------------------------- */
+/* -------------------------- Franja de confianza -------------------------- */
 
-function Hero() {
+function TrustStrip() {
+  const items = [
+    {
+      icon: <Image src={avatar} alt="" width={40} height={40} className="size-10 rounded-full object-cover" />,
+      title: `Trato directo con ${siteConfig.owner}`,
+      text: "Hablas siempre con quien hace la obra.",
+    },
+    { icon: <IconShield size={20} />, title: "Solicitud sin compromiso", text: "Cuéntanos tu idea y te orientamos." },
+    { icon: <IconRuler size={20} />, title: "Sin medidas exactas", text: "Responde «No lo sé» y seguimos." },
+    { icon: <IconClock size={20} />, title: "Unos 2 minutos", text: "Con fotos de tu espacio incluidas." },
+  ];
   return (
-    <section className="relative overflow-hidden bg-white">
-      <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 pt-8 pb-16 sm:px-8 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pt-14 lg:pb-24">
-        <div>
-          <p className="inline-flex items-center gap-2 rounded-full bg-mist px-3.5 py-1.5 text-sm font-semibold text-navy">
-            <IconPin size={16} className="text-steel-ink" />
-            Reformas en {siteConfig.serviceArea.label}
-          </p>
-          <h1 className="font-display-tight mt-6 text-[3.4rem] leading-[0.9] text-navy uppercase sm:text-7xl xl:text-[5.6rem]">
-            Tu casa también merece un <span className="text-steel">Glow Up.</span>
-          </h1>
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-steel-ink">
-            Reformas integrales, cocinas, baños, pintura y albañilería. Cuéntanos tu proyecto en unos 2 minutos y {siteConfig.owner} lo
-            estudiará personalmente.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <CtaLink size="lg">Solicitar presupuesto</CtaLink>
-            <CtaLink href="/showroom" variant="outline" arrow={false} className="min-h-15">
-              Ver el showroom
-            </CtaLink>
-          </div>
-          <ul className="mt-10 grid gap-3 text-[15px] font-semibold text-navy sm:grid-cols-3 sm:gap-4">
-            {[
-              {
-                icon: <Image src={avatar} alt="" width={36} height={36} className="size-9 rounded-full object-cover" />,
-                text: `Trato directo con ${siteConfig.owner}`,
-              },
-              { icon: <IconShield size={18} />, text: "Solicitud sin compromiso" },
-              { icon: <IconRuler size={18} />, text: "Sin medidas exactas" },
-            ].map((t) => (
-              <li key={t.text} className="flex items-center gap-2.5">
-                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-mist text-navy">{t.icon}</span>
-                {t.text}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="relative">
-          <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-mist shadow-lift">
-            <Image
-              src={DEFAULT_MEDIA.src}
-              alt={DEFAULT_MEDIA.alt}
-              fill
-              preload
-              placeholder="blur"
-              sizes="(min-width: 1280px) 600px, (min-width: 1024px) 46vw, 92vw"
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-navy-950/55 via-transparent to-transparent" />
-          </div>
-          <div className="absolute -bottom-6 left-4 right-4 rounded-3xl bg-white/95 p-5 shadow-lift ring-1 ring-navy/8 backdrop-blur sm:left-auto sm:-left-10 sm:right-auto sm:w-[22rem] lg:-left-14">
-            <p className="flex items-center gap-2 text-xs font-bold tracking-[0.18em] text-steel-ink uppercase">
-              <IconSpark size={16} className="text-steel" /> Excellence Smart Budget
-            </p>
-            <p className="mt-2 text-lg leading-snug font-bold text-navy">Cuéntanos tu proyecto paso a paso, con fotos incluidas.</p>
-            <div className="mt-4 flex gap-1.5" aria-hidden="true">
-              {Array.from({ length: 7 }, (_, i) => (
-                <span key={i} className={`h-1.5 flex-1 rounded-full ${i < 3 ? "bg-navy" : "bg-mist"}`} />
-              ))}
-            </div>
-            <div className="mt-4 flex items-center justify-between gap-3">
-              <span className="flex items-center gap-1.5 text-sm text-steel-ink">
-                <IconClock size={16} /> Unos 2 minutos
+    <section aria-label="Por qué Excellence Reformas" className="bg-white pt-10 lg:pt-14">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <ul className="grid gap-px overflow-hidden rounded-3xl bg-navy/8 shadow-card ring-1 ring-navy/8 sm:grid-cols-2 lg:grid-cols-4">
+          {items.map((t) => (
+            <li key={t.title} className="flex items-start gap-3.5 bg-white p-5 lg:p-6">
+              <span className="grid size-10 shrink-0 place-items-center rounded-full bg-mist text-navy">{t.icon}</span>
+              <span>
+                <strong className="block text-[15px] font-bold text-navy">{t.title}</strong>
+                <span className="mt-0.5 block text-sm text-steel-ink">{t.text}</span>
               </span>
-              <Link href={budgetHref()} className="group inline-flex items-center gap-1.5 text-sm font-extrabold text-navy">
-                Empezar mi Glow Up
-                <IconArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
-              </Link>
-            </div>
-          </div>
+            </li>
+          ))}
+        </ul>
+        <div className="flex flex-col items-center justify-center gap-3 pt-10 pb-4 sm:flex-row">
+          <CtaLink size="lg">Solicitar presupuesto</CtaLink>
+          <CtaLink href="/showroom" variant="outline" arrow={false} className="min-h-15">
+            Ver el showroom
+          </CtaLink>
         </div>
       </div>
     </section>

@@ -16,16 +16,22 @@ const NAV = [
   { href: "/#contacto", label: "Contacto" },
 ];
 
-export function SiteHeader() {
+/**
+ * Cabecera del sitio. Con `overlay` (portada) empieza transparente y en blanco
+ * sobre la escena nocturna, y pasa a fondo blanco al desplazarse.
+ */
+export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const dark = overlay && !scrolled && !open;
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const threshold = overlay ? window.innerHeight * 0.82 : 8;
+    const onScroll = () => setScrolled(window.scrollY > threshold);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [overlay]);
 
   useEffect(() => {
     if (!open) return;
@@ -42,7 +48,7 @@ export function SiteHeader() {
     <header
       className={cx(
         "sticky top-0 z-40 transition-[background-color,box-shadow] duration-300",
-        scrolled || open ? "bg-white/92 shadow-[0_1px_0_rgb(16_43_73/0.08)] backdrop-blur-md" : "bg-white",
+        dark ? "bg-transparent" : scrolled || open ? "bg-white/92 shadow-[0_1px_0_rgb(16_43_73/0.08)] backdrop-blur-md" : "bg-white",
       )}
     >
       <a
@@ -53,7 +59,7 @@ export function SiteHeader() {
       </a>
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-6 px-5 sm:px-8 lg:h-20">
         <Link href="/" aria-label="Excellence Reformas, inicio" className="shrink-0 rounded-md">
-          <Logo className="h-11 w-auto text-navy lg:h-13" decorative />
+          <Logo className={cx("h-11 w-auto transition-colors duration-300 lg:h-13", dark ? "text-white" : "text-navy")} decorative />
         </Link>
 
         <nav aria-label="Principal" className="hidden lg:block">
@@ -62,7 +68,10 @@ export function SiteHeader() {
               <li key={n.href}>
                 <Link
                   href={n.href}
-                  className="rounded-full px-4 py-2.5 text-[15px] font-semibold text-navy/80 transition hover:bg-mist hover:text-navy"
+                  className={cx(
+                    "rounded-full px-4 py-2.5 text-[15px] font-semibold transition",
+                    dark ? "text-white/85 hover:bg-white/10 hover:text-white" : "text-navy/80 hover:bg-mist hover:text-navy",
+                  )}
                 >
                   {n.label}
                 </Link>
@@ -73,12 +82,14 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2">
           <span className="sm:hidden">
-            <CtaLink size="sm" arrow={false} className="px-4">
+            <CtaLink size="sm" arrow={false} variant={dark ? "light" : "primary"} className="px-4">
               Presupuesto
             </CtaLink>
           </span>
           <span className="hidden sm:block">
-            <CtaLink size="sm">Solicitar presupuesto</CtaLink>
+            <CtaLink size="sm" variant={dark ? "light" : "primary"}>
+              Solicitar presupuesto
+            </CtaLink>
           </span>
           <button
             type="button"
@@ -86,7 +97,10 @@ export function SiteHeader() {
             aria-expanded={open}
             aria-controls="menu-movil"
             aria-label={open ? "Cerrar menú" : "Abrir menú"}
-            className="grid size-11 place-items-center rounded-full text-navy ring-1 ring-navy/15 transition hover:ring-navy lg:hidden"
+            className={cx(
+              "grid size-11 place-items-center rounded-full ring-1 transition lg:hidden",
+              dark ? "text-white ring-white/35 hover:ring-white" : "text-navy ring-navy/15 hover:ring-navy",
+            )}
           >
             {open ? <IconClose size={22} /> : <IconMenu size={22} />}
           </button>
