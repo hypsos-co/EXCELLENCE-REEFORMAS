@@ -112,7 +112,15 @@ export function getSiteUrl(): URL {
   if (fromConfig) return new URL(fromConfig);
   const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
   if (vercel) return new URL(`https://${vercel}`);
+  // Netlify define URL (dirección principal del sitio) durante la compilación.
+  const netlify = process.env.URL;
+  if (netlify && /^https?:\/\//.test(netlify)) return new URL(netlify);
   return new URL("http://localhost:3000");
+}
+
+/** true si se conoce la dirección pública real (dominio o URL del hosting). */
+export function hasPublicSiteUrl(): boolean {
+  return getSiteUrl().hostname !== "localhost";
 }
 
 export function hasWhatsApp(): boolean {

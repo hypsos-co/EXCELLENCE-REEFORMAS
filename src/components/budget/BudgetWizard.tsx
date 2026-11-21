@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { AnimatePresence, MotionConfig, motion, type Variants } from "motion/react";
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { hasWhatsApp, siteConfig } from "@/config/site";
 import type { ReformType } from "@/lib/budget/options";
 import { reformTitle } from "@/lib/budget/summary";
@@ -13,6 +13,8 @@ import { IconArrowLeft, IconArrowRight, IconCheck, IconClock, IconClose, IconSpa
 import { DEFAULT_MEDIA, REFORM_MEDIA } from "./media";
 import ownerAvatar from "@/assets/equipo/julio-cesar-avatar.jpg";
 import { preparePhoto, type PhotoItem } from "./photos";
+import { submitBudgetRequest } from "./submit";
+import { UrlPreselect } from "./UrlPreselect";
 import {
   STEPS,
   STEP_MESSAGES,
@@ -22,8 +24,6 @@ import {
   initialDraft,
   newIdempotencyKey,
   reducer,
-  stepForField,
-  toPayload,
   validateStep,
   type Action,
   type Draft,
@@ -293,48 +293,23 @@ export function BudgetWizard({ initialType }: { initialType?: ReformType }) {
       idempotency.current = { key: newIdempotencyKey(), draft, photos };
     }
 
-    const form = new FormData();
-    form.append("data", JSON.stringify(toPayload(draft)));
-    form.append("startedAt", String(startedAt.current ?? Date.now()));
-    form.append("website", honeypot);
-    photos.filter((p) => p.status === "ready" && p.file).forEach((p) => form.append("fotos", p.file!, p.file!.name));
-
     setSubmit({ status: "sending" });
     setAnnouncement("Enviando tu solicitud…");
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 60_000);
-    try {
-      const res = await fetch("/api/solicitudes", {
-        method: "POST",
-        body: form,
-        headers: { "Idempotency-Key": idempotency.current.key },
-        signal: controller.signal,
-      });
-      const body = (await res.json().catch(() => null)) as
-        | { ok: true; reference: string }
-        | { ok: false; code?: string; message?: string; fieldErrors?: Record<string, string> }
-        | null;
-      if (res.ok && body?.ok) {
-        setSubmit({ status: "success", reference: body.reference });
-        setAnnouncement("Solicitud enviada correctamente.");
-        window.scrollTo({ top: 0 });
-        return;
-      }
-      const failure = body && !body.ok ? body : null;
-      const fieldErrors = failure?.fieldErrors;
-      const steps = fieldErrors ? [...new Set(Object.keys(fieldErrors).map(stepForField))] : undefined;
-      let message = failure?.message ?? "No hemos podido enviar tu solicitud. Inténtalo de nuevo.";
-      if (res.status === 413) message = "Las fotografías ocupan demasiado. Elimina alguna e inténtalo de nuevo.";
-      if (res.status >= 500 && !failure?.message) message = "Ha habido un problema en nuestro servidor. Inténtalo de nuevo en unos minutos.";
-      setSubmit({ status: "error", error: { message, fieldErrors, steps } });
-      setAnnouncement(message);
-    } catch {
-      const message = "No hemos podido conectar con el servidor. Revisa tu conexión a internet y vuelve a intentarlo.";
-      setSubmit({ status: "error", error: { message } });
-      setAnnouncement(message);
-    } finally {
-      clearTimeout(timer);
+    const result = await submitBudgetRequest({
+      draft,
+      photos,
+      honeypot,
+      startedAt: startedAt.current ?? Date.now(),
+      idempotencyKey: idempotency.current.key,
+    });
+    if (result.ok) {
+      setSubmit({ status: "success", reference: result.reference });
+      setAnnouncement("Solicitud enviada correctamente.");
+      window.scrollTo({ top: 0 });
+      return;
     }
+    setSubmit({ status: "error", error: { message: result.message, fieldErrors: result.fieldErrors, steps: result.steps } });
+    setAnnouncement(result.message);
   };
 
   /* ------------------------------ Éxito -------------------------------- */
@@ -627,6 +602,9 @@ export function BudgetWizard({ initialType }: { initialType?: ReformType }) {
       <p className="sr-only" role="status" aria-live="polite">
         {announcement}
       </p>
+      <Suspense fallback={null}>
+        <UrlPreselect onPick={(value) => dispatchDraft({ type: "setPrimary", value })} />
+      </Suspense>
     </MotionConfig>
   );
 }

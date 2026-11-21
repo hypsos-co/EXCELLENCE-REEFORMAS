@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import type { NextRequest } from "next/server";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { POST } from "@/app/api/solicitudes/route";
+import { POST } from "@/app/api/solicitudes/route.server";
 import { fakeJpeg, validRequest } from "./fixtures";
 
 let dir: string;

@@ -16,3 +16,16 @@ describe("contenido del showroom", () => {
     for (const c of SHOWROOM_CATEGORIES) expect(SHOWROOM_PHOTOS.some((p) => p.category === c.id)).toBe(true);
   });
 });
+
+import { readFileSync } from "node:fs";
+import { PUBLIC_PAGES, robotsTxt, sitemapXml } from "@/lib/seo";
+
+describe("SEO", () => {
+  it("robots y sitemap coinciden con el script de la versión Netlify", () => {
+    const script = readFileSync("scripts/build-netlify.mjs", "utf8");
+    expect(script).toContain(`const PAGES = ${JSON.stringify([...PUBLIC_PAGES]).replace(/,/g, ", ")};`);
+    expect(robotsTxt(null)).not.toContain("Sitemap");
+    expect(robotsTxt("https://example.com")).toContain("Sitemap: https://example.com/sitemap.xml");
+    expect(sitemapXml("https://example.com")).toContain("<loc>https://example.com/showroom</loc>");
+  });
+});

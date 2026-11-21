@@ -138,6 +138,7 @@ test("se puede completar el primer paso solo con teclado", async ({ page, isMobi
 test("respeta prefers-reduced-motion", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/solicitar-presupuesto?tipo=bano");
+  await expect(page.locator('input[name=reform][value="bano"]')).toBeChecked();
   await next(page);
   await expect(page.getByRole("heading", { name: /dónde vamos a realizar/i })).toBeVisible();
   const transform = await page.locator("section[aria-labelledby=step-title]").evaluate((el) => getComputedStyle(el).transform);

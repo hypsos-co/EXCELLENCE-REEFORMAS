@@ -9,7 +9,10 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "build:netlify": "node scripts/build-netlify.mjs",
+    "preview:netlify": "node e2e-netlify/server.mjs out 4000",
+    "test:e2e:netlify": "npm run build:netlify && playwright test -c playwright.netlify.config.ts"
   },
   "dependencies": {
     "aws4fetch": "^1.0.20",
@@ -32,6 +35,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
     "mailparser": "^3.15.0",
+    "sharp": "^0.35.5",
     "smtp-server": "^3.21.7",
     "tailwindcss": "4.3.3",
     "typescript": "^5",

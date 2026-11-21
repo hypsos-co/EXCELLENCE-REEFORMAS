@@ -1,3 +1,5 @@
+import { normalizePhone } from "./schema";
+
 /**
  * Enlace wa.me con un mensaje personalizado para continuar la conversación
  * después de enviar la solicitud.
@@ -34,4 +36,11 @@ export function buildWhatsAppUrl(number: string, message: string): string | null
   const digits = number.replace(/\D/g, "");
   if (!/^\d{8,15}$/.test(digits)) return null;
   return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+}
+
+/** Enlace wa.me al teléfono del cliente (asume España si son 9 dígitos). */
+export function clientWhatsAppUrl(phone: string): string | null {
+  let p = normalizePhone(phone).replace(/^\+/, "").replace(/^00/, "");
+  if (/^[6789]\d{8}$/.test(p)) p = `34${p}`;
+  return /^\d{8,15}$/.test(p) ? `https://wa.me/${p}` : null;
 }

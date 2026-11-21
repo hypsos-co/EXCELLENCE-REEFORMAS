@@ -86,9 +86,12 @@ export default function PrivacyPage() {
 
             <Block title="6. Destinatarios">
               <p>
-                No cedemos tus datos a terceros, salvo obligación legal. Para que la web funcione utilizamos proveedores de alojamiento,
-                almacenamiento y correo electrónico que actúan como encargados del tratamiento, con las garantías que exige la normativa. Si
-                decides continuar la conversación por WhatsApp, ese servicio se rige por las condiciones de su proveedor.
+                No cedemos tus datos a terceros, salvo obligación legal. Para que la web funcione utilizamos proveedores de alojamiento web,
+                recepción de formularios, almacenamiento y correo electrónico que actúan como encargados del tratamiento, con las garantías que
+                exige la normativa. Algunos pueden estar ubicados fuera del Espacio Económico Europeo; en ese caso, las transferencias se
+                amparan en las garantías previstas en el RGPD (por ejemplo, el Marco de Privacidad de Datos UE-EE. UU. o cláusulas
+                contractuales tipo). Si decides continuar la conversación por WhatsApp, ese servicio se rige por las condiciones de su
+                proveedor.
               </p>
             </Block>
 
@@ -106,8 +109,8 @@ export default function PrivacyPage() {
 
             <Block title="8. Seguridad">
               <p>
-                Las solicitudes y las fotografías se guardan en un almacenamiento privado, sin enlaces públicos, y la comunicación con la web se
-                realiza de forma cifrada. Solo {name} accede a ellas.
+                Las solicitudes y las fotografías se guardan en los servidores de nuestros proveedores tecnológicos, no se publican en la web y
+                solo {name} accede a ellas desde su panel de gestión. La comunicación con la web se realiza de forma cifrada (HTTPS).
               </p>
             </Block>
 

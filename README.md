@@ -69,6 +69,9 @@ en el código ni en el navegador. Ver `.env.example`.
 
 ## 3. Cómo llegan las solicitudes
 
+> Esta sección describe la **versión con servidor**. En la versión HTML para Netlify las solicitudes
+> se reciben con Netlify Forms (ver sección 4).
+
 ```
 Navegador (asistente)                          Servidor  POST /api/solicitudes
 ────────────────────                           ─────────────────────────────────
@@ -123,7 +126,46 @@ y la API key como contraseña). El email llega con **Responder a** = email del c
 > En Vercel el disco no es persistente: sin `STORAGE_DRIVER=s3` el servidor se niega a recibir
 > solicitudes (503) en lugar de perderlas.
 
-## 4. Despliegue (Vercel)
+## 4. Despliegue en Netlify (HTML estático) — recomendado para empezar
+
+`npm run build:netlify` genera la web completa como **HTML estático** en la carpeta `out/`
+(páginas, estilos, tipografías y todas las fotos en WebP optimizado). En esta versión las
+solicitudes se reciben con **Netlify Forms**: Netlify las guarda, filtra el spam y envía un email
+con cada una. No hace falta configurar SMTP ni almacenamiento.
+
+### Opción A · Subir la carpeta (sin Git)
+
+1. `npm install` y `npm run build:netlify` (o usa el zip ya generado).
+2. En Netlify: *Add new project → Deploy manually* y arrastra la carpeta `out/`.
+
+### Opción B · Conectar el repositorio (recomendado: cada cambio se publica solo)
+
+*Add new project → Import an existing project* → este repositorio. `netlify.toml` ya indica el
+comando (`npm run build:netlify`) y la carpeta de publicación (`out`).
+
+### Activar la recepción de solicitudes (imprescindible, una sola vez)
+
+1. **Forms → Enable form detection** y vuelve a desplegar. Netlify registrará el formulario
+   `solicitud-presupuesto` (definido en `public/__forms.html`).
+2. **Forms → Submission notifications → Add notification → Email notification**: el email de
+   Julio César. ⚠️ Netlify solo permite como destinatario a **un miembro activo del equipo de
+   Netlify**: invita antes ese email al equipo.
+3. Haz una solicitud de prueba real (con nombre, frases completas y un email real) y comprueba que
+   aparece en **Forms**. Si no aparece, mira la carpeta **Spam** (Akismet a veces marca las pruebas).
+
+Cada solicitud llega con: referencia `ER-AAMMDD-XXXX`, un **resumen completo** (con enlace de
+WhatsApp del cliente), los campos por separado y hasta 6 fotos (`foto_1` … `foto_6`). Si Netlify no
+acepta el envío (por ejemplo, sin la detección activada), el cliente ve un error: nunca un éxito falso.
+
+**Limitaciones de esta versión** frente a la de servidor: las fotos se guardan en Netlify y se
+abren desde el panel con un enlace directo (no publicado en la web, pero quien tenga el enlace exacto
+puede verlo); no hay detección de duplicados en el servidor; y el número de solicitudes y el espacio
+para archivos dependen del plan de Netlify (revisa sus límites de Forms).
+
+Para ver la versión estática en local: `npm run build:netlify` y `npm run preview:netlify`
+(http://localhost:4000, con un Netlify simulado que guarda los envíos en `.data-netlify/`).
+
+## 5. Despliegue con servidor (Vercel u otro hosting Node)
 
 1. Importa el repositorio en Vercel (framework detectado: Next.js).
 2. Añade las variables de `.env.example` (SMTP + S3) en *Settings → Environment Variables*.
@@ -134,7 +176,7 @@ Límite a tener en cuenta: las funciones de Vercel aceptan peticiones de hasta 4
 asistente comprime las fotos en el navegador y el servidor limita el total a 4 MB (6 fotos máx.;
 configurable en `src/lib/budget/uploads.ts`).
 
-## 5. Seguridad y privacidad
+## 6. Seguridad y privacidad
 
 - Ninguna credencial en el navegador; el formulario solo habla con `/api/solicitudes`.
 - Validación en cliente **y** en servidor con el mismo esquema (`src/lib/budget/schema.ts`).
@@ -146,7 +188,7 @@ configurable en `src/lib/budget/uploads.ts`).
   avisa antes de perder las respuestas.
 - Casilla obligatoria de política de privacidad (se registra la versión aceptada).
 
-## 6. Fotografías
+## 7. Fotografías
 
 Todas las fotos son trabajos reales de la carpeta de Google Drive «TRABAJO» (631 archivos).
 Se revisaron una a una y se descartaron:
@@ -164,7 +206,7 @@ más suave en las fotos con luz cálida para no perder el ambiente) y se les qui
 - `src/assets/showroom/` → las 45 fotos del showroom. Títulos, descripciones y categorías en
   `src/content/showroom.ts`; para añadir una foto, guárdala en esa carpeta y añade una línea.
 
-## 7. Pruebas
+## 8. Pruebas
 
 ```bash
 npm test
@@ -174,6 +216,10 @@ npm test
 npm run test:e2e
 ```
 
+```bash
+npm run test:e2e:netlify
+```
+
 - `npm test` (Vitest): esquema, enlace de WhatsApp, detección de imágenes, almacenamiento local y S3,
   límite por IP, la API completa y el envío real por SMTP contra un servidor de correo local
   (adjuntos, reintentos, duplicados, fallo del email).
@@ -181,19 +227,21 @@ npm run test:e2e
   edición desde el resumen, volver atrás sin perder respuestas, navegación con teclado,
   `prefers-reduced-motion`, preselección desde la portada y el showroom (filtros, visor con
   teclado y enlace al asistente).
+- `npm run test:e2e:netlify`: compila la versión HTML y la prueba con un Netlify simulado (envío
+  real a Netlify Forms con fotos, error sin éxito falso, todas las páginas y fotos sin errores, 404).
 
-## 8. Antes de publicar (checklist)
+## 9. Antes de publicar (checklist)
 
 - [ ] `src/config/site.ts`: dominio, teléfono, WhatsApp, email público.
 - [ ] `src/config/site.ts → legal`: titular, NIF/CIF, domicilio y email de privacidad.
 - [ ] Revisión legal de la política de privacidad (es una plantilla).
-- [ ] Variables SMTP + `NOTIFY_EMAIL_TO` en el hosting.
-- [ ] Bucket privado y variables `S3_*` en el hosting.
+- [ ] **Netlify:** detección de formularios activada + notificación por email a un miembro del equipo.
+- [ ] **Servidor propio (alternativa):** variables SMTP + `NOTIFY_EMAIL_TO` y bucket privado `S3_*`.
 - [ ] Revisar el texto de «Conóceme» (`src/config/about.ts`).
 - [ ] Añadir opiniones reales de clientes en `src/config/reviews.ts` cuando las tengáis.
 - [ ] Solicitud de prueba real de principio a fin.
 
-## 9. Estructura
+## 10. Estructura
 
 ```
 src/
@@ -216,7 +264,7 @@ src/
 tests/  e2e/                         Pruebas
 ```
 
-## 10. Próximos pasos sugeridos
+## 11. Próximos pasos sugeridos
 
 - Panel privado para consultar y marcar solicitudes (hoy se gestionan desde el email y el bucket).
 - Límite de envíos global con Redis/Upstash (el actual es por instancia).

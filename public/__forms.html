@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Formularios · Excellence Reformas</title>
+  </head>
+  <body>
+    <!--
+      Esqueleto para NETLIFY FORMS. Netlify lee este archivo al desplegar y
+      registra el formulario «solicitud-presupuesto». El asistente
+      (Excellence Smart Budget) envía aquí las solicitudes con JavaScript.
+      Los nombres de campo deben coincidir con src/lib/budget/netlify-form.ts
+      (hay una prueba automática que lo comprueba). No borres este archivo.
+    -->
+    <form name="solicitud-presupuesto" method="POST" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" hidden>
+      <input type="hidden" name="form-name" value="solicitud-presupuesto" />
+      <input type="text" name="nombre" />
+      <input type="tel" name="telefono" />
+      <input type="email" name="email" />
+      <input type="text" name="referencia" />
+      <input type="text" name="tipo_reforma" />
+      <input type="text" name="inmueble" />
+      <input type="text" name="localidad" />
+      <input type="text" name="codigo_postal" />
+      <input type="text" name="provincia" />
+      <input type="text" name="zona" />
+      <input type="text" name="fecha_prevista" />
+      <input type="text" name="presupuesto_orientativo" />
+      <input type="text" name="privacidad" />
+      <input type="text" name="enviado_el" />
+      <textarea name="resumen"></textarea>
+      <textarea name="detalles"></textarea>
+      <textarea name="descripcion"></textarea>
+      <input type="hidden" name="subject" />
+      <input type="file" name="foto_1" />
+      <input type="file" name="foto_2" />
+      <input type="file" name="foto_3" />
+      <input type="file" name="foto_4" />
+      <input type="file" name="foto_5" />
+      <input type="file" name="foto_6" />
+      <input type="text" name="bot-field" />
+    </form>
+  </body>
+</html>

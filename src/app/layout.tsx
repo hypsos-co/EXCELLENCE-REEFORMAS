@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
-import { getSiteUrl, siteConfig } from "@/config/site";
+import { getSiteUrl, hasPublicSiteUrl, siteConfig } from "@/config/site";
 import hero from "@/assets/obras/hero.jpg";
 import "./globals.css";
 
@@ -31,7 +31,10 @@ export const metadata: Metadata = {
     type: "website",
     locale: "es_ES",
     siteName: siteConfig.name,
-    images: [{ url: hero.src, width: hero.width, height: hero.height, alt: "Salón reformado por Excellence Reformas" }],
+    // Solo con una dirección pública real: si no, la imagen apuntaría a localhost.
+    images: hasPublicSiteUrl()
+      ? [{ url: hero.src, width: hero.width, height: hero.height, alt: "Salón reformado por Excellence Reformas" }]
+      : undefined,
   },
 };
 

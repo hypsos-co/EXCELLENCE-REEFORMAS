@@ -1,6 +1,9 @@
 import nodemailer from "nodemailer";
 import { siteConfig } from "@/config/site";
 import { normalizePhone } from "@/lib/budget/schema";
+import { clientWhatsAppUrl } from "@/lib/budget/whatsapp";
+
+export { clientWhatsAppUrl };
 import {
   budgetText,
   detailRows,
@@ -25,13 +28,6 @@ export type EmailMessage = {
 
 const esc = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
-
-/** Enlace wa.me al teléfono del cliente (asume España si son 9 dígitos). */
-export function clientWhatsAppUrl(phone: string): string | null {
-  let p = normalizePhone(phone).replace(/^\+/, "").replace(/^00/, "");
-  if (/^[6789]\d{8}$/.test(p)) p = `34${p}`;
-  return /^\d{8,15}$/.test(p) ? `https://wa.me/${p}` : null;
-}
 
 export function buildNotificationEmail(record: StoredRequest, photos: Attachment[]): EmailMessage {
   const r = record.request;

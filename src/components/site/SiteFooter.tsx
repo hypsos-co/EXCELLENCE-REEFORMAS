@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { cacheLife } from "next/cache";
+import { CurrentYear } from "./CurrentYear";
 import { siteConfig, telHref } from "@/config/site";
 import { Logo } from "@/components/brand/Logo";
 import { IconInstagram, IconMail, IconPhone, IconPin, IconWhatsApp } from "@/components/icons";
@@ -96,16 +96,9 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-white/10">
         <p className="mx-auto max-w-7xl px-5 py-6 text-sm text-steel-soft sm:px-8">
-          © <CopyrightYear /> {siteConfig.name}. Todos los derechos reservados.
+          © <CurrentYear /> {siteConfig.name}. Todos los derechos reservados.
         </p>
       </div>
     </footer>
   );
-}
-
-/** Año en curso, cacheado (con Cache Components no se puede leer la fecha durante el prerender). */
-async function CopyrightYear() {
-  "use cache";
-  cacheLife("days");
-  return <>{new Date().getFullYear()}</>;
 }
