@@ -77,6 +77,11 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
+              <Link href="/#sobre-mi" className="text-white/85 hover:text-white">
+                Sobre mí
+              </Link>
+            </li>
+            <li>
               <Link href="/solicitar-presupuesto" className="text-white/85 hover:text-white">
                 Solicitar presupuesto
               </Link>

@@ -8,7 +8,7 @@ directamente a Excellence Reformas.
 
 | Ruta | Qué es |
 | --- | --- |
-| `/` | Portada: hero, servicios (cada uno abre el asistente con ese tipo ya elegido), Smart Budget, trabajos reales, cómo trabajamos, contacto. |
+| `/` | Portada: hero, servicios (cada uno abre el asistente con ese tipo ya elegido), Smart Budget, trabajos reales, cómo trabajamos, «Conóceme», opiniones (si hay reales), contacto. |
 | `/solicitar-presupuesto` | El asistente a pantalla completa. Admite `?tipo=integral\|cocina\|bano\|pintura\|albanileria\|otra`. |
 | `/politica-de-privacidad` | Política de privacidad (plantilla RGPD con los datos de `src/config/site.ts`). |
 | `POST /api/solicitudes` | Backend que valida, guarda y notifica cada solicitud. |
@@ -51,6 +51,15 @@ Un único archivo para cambiar lo que se muestra en la web:
 
 Los campos vacíos se ocultan: por ejemplo, el botón «CONTINUAR POR WHATSAPP» solo aparece cuando hay
 un número de WhatsApp válido (mientras tanto, la pantalla final enlaza a Instagram).
+
+### Textos de la portada
+
+- `src/config/about.ts` → sección **«Conóceme»** de Julio César (texto en primera persona). Su foto
+  está en `src/assets/equipo/` y aparece también en la portada, el asistente y la pantalla final.
+- `src/config/reviews.ts` → **opiniones de clientes**. La sección solo aparece cuando la lista tiene
+  opiniones **reales** (con permiso del cliente). No se deben añadir reseñas inventadas: además de
+  engañar a los clientes, es una práctica desleal prohibida por la normativa de consumo.
+  `reviewLinkUrl` admite el enlace de reseñas de Google para mostrar el botón «Déjanos tu opinión».
 
 ### Secretos → variables de entorno
 
@@ -168,6 +177,8 @@ npm run test:e2e
 - [ ] Revisión legal de la política de privacidad (es una plantilla).
 - [ ] Variables SMTP + `NOTIFY_EMAIL_TO` en el hosting.
 - [ ] Bucket privado y variables `S3_*` en el hosting.
+- [ ] Revisar el texto de «Conóceme» (`src/config/about.ts`).
+- [ ] Añadir opiniones reales de clientes en `src/config/reviews.ts` cuando las tengáis.
 - [ ] Solicitud de prueba real de principio a fin.
 
 ## 9. Estructura

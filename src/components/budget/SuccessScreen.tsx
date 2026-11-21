@@ -8,6 +8,7 @@ import { siteConfig } from "@/config/site";
 import { Logo } from "@/components/brand/Logo";
 import { IconArrowLeft, IconCheck, IconInstagram, IconWhatsApp } from "@/components/icons";
 import { DEFAULT_MEDIA } from "./media";
+import ownerAvatar from "@/assets/equipo/julio-cesar-avatar.jpg";
 
 export function SuccessScreen({
   firstName,
@@ -55,7 +56,15 @@ export function SuccessScreen({
             Solicitud registrada · Referencia <strong className="font-bold tracking-wider">{reference}</strong>
           </p>
 
-          <div className="mt-9 flex flex-col items-center gap-3">
+          <div className="mx-auto mt-8 flex w-fit items-center gap-3 rounded-full bg-white/8 py-2 pr-5 pl-2 text-left ring-1 ring-white/15">
+            <Image src={ownerAvatar} alt="" width={44} height={44} className="size-11 rounded-full object-cover" />
+            <span className="text-sm leading-tight">
+              <strong className="block font-bold">{siteConfig.owner}</strong>
+              <span className="text-white/75">{siteConfig.name}</span>
+            </span>
+          </div>
+
+          <div className="mt-6 flex flex-col items-center gap-3">
             {whatsappUrl ? (
               <a
                 href={whatsappUrl}

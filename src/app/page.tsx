@@ -7,6 +7,9 @@ import { LogoHouses } from "@/components/brand/Logo";
 import { CtaLink, budgetHref } from "@/components/site/CtaLink";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
+import { About } from "@/components/home/About";
+import { Reviews } from "@/components/home/Reviews";
+import avatar from "@/assets/equipo/julio-cesar-avatar.jpg";
 import {
   IconArrowRight,
   IconCamera,
@@ -19,7 +22,6 @@ import {
   IconRuler,
   IconShield,
   IconSpark,
-  IconUser,
   IconWhatsApp,
 } from "@/components/icons";
 import cocinaFrontal from "@/assets/obras/cocina-frontal.jpg";
@@ -52,6 +54,8 @@ export default function HomePage() {
         <SmartBudget />
         <Works />
         <Process />
+        <About />
+        <Reviews />
         <Contact />
       </main>
       <SiteFooter />
@@ -85,7 +89,10 @@ function Hero() {
           </div>
           <ul className="mt-10 grid gap-3 text-[15px] font-semibold text-navy sm:grid-cols-3 sm:gap-4">
             {[
-              { icon: <IconUser size={18} />, text: `Trato directo con ${siteConfig.owner}` },
+              {
+                icon: <Image src={avatar} alt="" width={36} height={36} className="size-9 rounded-full object-cover" />,
+                text: `Trato directo con ${siteConfig.owner}`,
+              },
               { icon: <IconShield size={18} />, text: "Solicitud sin compromiso" },
               { icon: <IconRuler size={18} />, text: "Sin medidas exactas" },
             ].map((t) => (

@@ -150,3 +150,10 @@ test("la portada lleva al asistente con el tipo preseleccionado", async ({ page 
   await expect(page).toHaveURL(/tipo=bano/);
   await expect(page.locator('input[name=reform][value="bano"]')).toBeChecked();
 });
+
+test("la portada presenta a Julio César y no muestra opiniones si no hay reales", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: /Hola, soy Julio César/i })).toBeVisible();
+  await expect(page.getByAltText(/Julio César, de Excellence Reformas/)).toBeVisible();
+  await expect(page.locator("#opiniones")).toHaveCount(0);
+});

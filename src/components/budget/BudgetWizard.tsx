@@ -11,6 +11,7 @@ import { buildWhatsAppMessage, buildWhatsAppUrl } from "@/lib/budget/whatsapp";
 import { Logo } from "@/components/brand/Logo";
 import { IconArrowLeft, IconArrowRight, IconCheck, IconClock, IconClose, IconSpark } from "@/components/icons";
 import { DEFAULT_MEDIA, REFORM_MEDIA } from "./media";
+import ownerAvatar from "@/assets/equipo/julio-cesar-avatar.jpg";
 import { preparePhoto, type PhotoItem } from "./photos";
 import {
   STEPS,
@@ -440,7 +441,14 @@ export function BudgetWizard({ initialType }: { initialType?: ReformType }) {
               </ol>
             </nav>
 
-            <div className="mt-auto pt-8">
+            <div className="mt-auto space-y-3 pt-8">
+              <div className="flex items-center gap-3">
+                <Image src={ownerAvatar} alt="" width={48} height={48} className="size-12 rounded-full object-cover ring-2 ring-white/30" />
+                <p className="text-sm leading-snug text-white/85">
+                  <strong className="block font-bold text-white">{siteConfig.owner}</strong>
+                  Revisará tu solicitud personalmente
+                </p>
+              </div>
               <AnimatePresence mode="wait" initial={false}>
                 <motion.p
                   key={step}
