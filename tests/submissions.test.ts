@@ -185,6 +185,6 @@ describe("confirmación al cliente", () => {
     expect(toClient.subject).toContain(res.reference);
     expect(toClient.html).toContain("¿Qué pasa ahora?");
     const toBusiness = smtp.received.find((m) => JSON.stringify(m.to).includes("julio@example.com"))!;
-    expect(toBusiness.subject).toContain("Nueva solicitud de presupuesto");
+    expect(toBusiness.subject).toContain("Nuevo cliente:");
   });
 });

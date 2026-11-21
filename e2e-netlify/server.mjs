@@ -1,7 +1,9 @@
 // Servidor local que imita a Netlify para probar la carpeta `out/`:
 //  - sirve el HTML estático con URLs «bonitas» (/showroom → showroom.html) y 404.html,
 //  - recibe POST de Netlify Forms como Netlify: exige un formulario registrado en
-//    __forms.html y solo acepta los campos declarados en él.
+//    __forms.html y solo acepta los campos declarados en él,
+//  - imita la función `opiniones`: las valoraciones con permiso de publicación
+//    se sirven en GET /api/opiniones (versión simplificada de src/lib/reviews).
 // Uso: node e2e-netlify/server.mjs [carpeta=out] [puerto=3200]
 import http from "node:http";
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
@@ -15,6 +17,37 @@ const skeleton = await readFile(path.join(root, "__forms.html"), "utf8");
 const forms = new Map();
 for (const m of skeleton.matchAll(/<form[^>]*\sname="([^"]+)"[^>]*>([\s\S]*?)<\/form>/g)) {
   forms.set(m[1], new Set([...m[2].matchAll(/<(?:input|textarea)[^>]*\sname="([^"]+)"/g)].map((f) => f[1])));
+}
+
+const reviewsDir = path.resolve(".data-netlify-blobs");
+const reviewsFile = path.join(reviewsDir, "opiniones.json");
+async function readReviews() {
+  try {
+    return JSON.parse(await readFile(reviewsFile, "utf8"));
+  } catch {
+    return [];
+  }
+}
+async function maybePublish(fields) {
+  if (fields["form-name"] !== "valoracion") return;
+  let d;
+  try {
+    d = JSON.parse(fields.datos_json ?? "");
+  } catch {
+    return;
+  }
+  if (!d.publish || !d.name) return;
+  const [first, second] = String(d.name).trim().split(/\s+/);
+  const list = await readReviews();
+  list.push({
+    id: Math.random().toString(16).slice(2, 14),
+    name: `${first}${second ? ` ${second[0].toUpperCase()}.` : ""}`,
+    rating: d.rating,
+    ...(d.comment ? { text: String(d.comment).trim() } : {}),
+    createdAt: new Date().toISOString(),
+  });
+  await mkdir(reviewsDir, { recursive: true });
+  await writeFile(reviewsFile, JSON.stringify(list, null, 2));
 }
 
 const TYPES = {
@@ -70,7 +103,14 @@ http
           }
         }
         await writeFile(path.join(dir, "submission.json"), JSON.stringify({ fields, files }, null, 2));
+        await maybePublish(fields);
         res.writeHead(200, { "content-type": "text/html" }).end("<p>Thank you for your submission</p>");
+        return;
+      }
+      if ((req.url ?? "").split("?")[0] === "/api/opiniones") {
+        const list = (await readReviews()).filter((r) => !r.hidden).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+        const average = list.length ? Math.round((list.reduce((s, r) => s + r.rating, 0) / list.length) * 10) / 10 : null;
+        res.writeHead(200, { "content-type": "application/json" }).end(JSON.stringify({ reviews: list, count: list.length, average }));
         return;
       }
       const file = await fileFor(req.url ?? "/");

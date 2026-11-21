@@ -11,7 +11,8 @@ directamente a Excellence Reformas.
 | `/` | Portada: escena nocturna «Valle de luz» (3D), franja de confianza, servicios (cada uno abre el asistente con ese tipo ya elegido), Smart Budget, trabajos reales, cómo trabajamos, «Conóceme», opiniones (si hay reales), cuidado de clientes, contacto. |
 | `/showroom` | Galería de 45 trabajos reales con filtros por tipo de espacio y visor a pantalla completa (teclado, deslizar en móvil y botón «Quiero algo así» que abre el asistente con el tipo de reforma ya elegido). |
 | `/solicitar-presupuesto` | El asistente a pantalla completa. Admite `?tipo=integral\|cocina\|bano\|pintura\|albanileria\|otra`. |
-| `/valoracion` | Valoración del cliente (1 a 5 estrellas, comentario, «¿te sientes bien atendido?», petición de llamada) y botones para seguir en redes. Una valoración baja o un «no» avisa a Julio César como **urgente**. |
+| `/valoracion` | Valoración del cliente (1 a 5 estrellas, comentario, «¿te sientes bien atendido?», petición de llamada) y botones para seguir en redes. Una valoración baja o un «no» avisa a Julio César como **urgente**. Si el cliente lo autoriza, su opinión **se publica de forma permanente en la portada**. |
+| `GET /api/opiniones` | Opiniones publicadas (JSON con media y total). En Netlify, función `opiniones`; con servidor, `src/app/api/opiniones`. |
 | `/clientes` | **Área de clientes** (app instalable en el móvil): valorar la obra, pedir una revisión o arreglo posventa con fotos, guía de cuidados, pedir otra reforma y recomendar a un amigo. |
 | `/politica-de-privacidad` | Política de privacidad (plantilla RGPD con los datos de `src/config/site.ts`). |
 | `POST /api/solicitudes` | Backend que valida, guarda y notifica cada solicitud (versión con servidor). |
@@ -179,6 +180,11 @@ comando (`npm run build:netlify`) y la carpeta de publicación (`out`).
 3. Haz una solicitud de prueba real (con nombre, frases completas y un email real) y comprueba que
    aparece en **Forms**. Si no aparece, mira la carpeta **Spam** (Akismet a veces marca las pruebas).
 
+El email de cada solicitud es una **ficha comercial**: prioridad del contacto (con sus motivos),
+botones para llamar, WhatsApp con el mensaje ya redactado, responder por email, agendar la visita y
+un recordatorio de seguimiento en Google Calendar, mapa, lo que el cliente no sabía (para preguntarlo
+en la llamada) y los pasos para convertirlo en cliente fiel.
+
 Cada solicitud llega con: referencia `ER-AAMMDD-XXXX`, un **resumen completo** (con enlace de
 WhatsApp del cliente), los campos por separado y hasta 6 fotos (`foto_1` … `foto_6`). Si Netlify no
 acepta el envío (por ejemplo, sin la detección activada), el cliente ve un error: nunca un éxito falso.
@@ -187,6 +193,16 @@ acepta el envío (por ejemplo, sin la detección activada), el cliente ve un err
 abren desde el panel con un enlace directo (no publicado en la web, pero quien tenga el enlace exacto
 puede verlo); no hay detección de duplicados en el servidor; y el número de solicitudes y el espacio
 para archivos dependen del plan de Netlify (revisa sus límites de Forms).
+
+### Opiniones permanentes en la web
+
+Cada valoración en la que el cliente marca «Autorizo a publicar mi opinión» se guarda en **Netlify
+Blobs** (almacén `opiniones` del proyecto; sin claves ni coste adicional) y aparece en la portada con
+su nombre e inicial, estrellas, comentario y fecha, junto a la media y el total. Se publican **todas**
+las autorizadas, también las negativas, sin modificar el texto (se quitan emails, teléfonos y
+enlaces). El email que recibe Julio César incluye **«Ocultar de la web»** (enlace firmado; pide
+confirmación) para retirar spam, insultos o datos personales. Ocultar opiniones reales solo por ser
+negativas puede considerarse publicidad engañosa.
 
 ### Emails visuales y confirmación al cliente (opcional, recomendado)
 
@@ -197,9 +213,12 @@ dejó su email, una **confirmación** con su referencia.
 
 1. Despliega **conectando el repositorio** (opción B) o con Netlify CLI: las funciones no se publican
    arrastrando la carpeta.
-2. En *Site configuration → Environment variables*, con alcance **Functions**:
-   `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`, `NOTIFY_EMAIL_TO`
-   y, si no quieres confirmación al cliente, `SEND_CLIENT_CONFIRMATION=false`.
+2. En *Project configuration → Environment variables*: `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`,
+   `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`, `NOTIFY_EMAIL_TO` y, si no quieres confirmación al
+   cliente, `SEND_CLIENT_CONFIRMATION=false`. Con Gmail: `smtp.gmail.com`, puerto `465`,
+   `SMTP_SECURE=true` y en `SMTP_PASS` una **contraseña de aplicación** de Google (Cuenta de Google →
+   Seguridad → Verificación en dos pasos → Contraseñas de aplicaciones), nunca la contraseña normal.
+   Marca `SMTP_PASS` como secreta.
 3. Vuelve a publicar y haz una prueba. Sin estas variables la función no hace nada y sigue llegando
    el aviso estándar de Netlify.
 

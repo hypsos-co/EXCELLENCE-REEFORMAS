@@ -15,7 +15,7 @@ const TIP_KEY = "er-wa-tip-cerrado";
  * Botón flotante de WhatsApp, animado, en todas las páginas.
  * Abre una conversación con el número configurado en src/config/site.ts.
  * Si no hay número configurado, no se muestra.
- * En la portada aparece al bajar de la escena nocturna, para no tapar sus controles.
+ * En la portada, el aviso «¿Hablamos?» espera a que se baje de la escena nocturna.
  */
 export function WhatsAppButton() {
   const pathname = usePathname();
@@ -23,7 +23,7 @@ export function WhatsAppButton() {
   const [tip, setTip] = useState(false);
   const onHome = pathname === "/";
   const [pastHero, setPastHero] = useState(false);
-  const show = !onHome || pastHero;
+  const tipAllowed = !onHome || pastHero;
 
   useEffect(() => {
     if (!onHome) return;
@@ -34,7 +34,7 @@ export function WhatsAppButton() {
   }, [onHome]);
 
   useEffect(() => {
-    if (!show) return;
+    if (!tipAllowed) return;
     let closed = false;
     try {
       closed = sessionStorage.getItem(TIP_KEY) === "1";
@@ -44,7 +44,7 @@ export function WhatsAppButton() {
     if (closed) return;
     const t = setTimeout(() => setTip(true), 4500);
     return () => clearTimeout(t);
-  }, [show]);
+  }, [tipAllowed]);
 
   if (!hasWhatsApp() || HIDDEN_ON.some((p) => pathname?.startsWith(p))) return null;
   const href = buildWhatsAppUrl(siteConfig.contact.whatsapp, siteConfig.whatsappMessage);
@@ -62,7 +62,7 @@ export function WhatsAppButton() {
   return (
     <div className="pointer-events-none fixed right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-50 flex items-end gap-3 sm:right-6 sm:bottom-6">
       <AnimatePresence>
-        {tip && show && (
+        {tip && tipAllowed && (
           <motion.div
             role="status"
             initial={{ opacity: 0, y: 8, scale: 0.96 }}
@@ -85,34 +85,28 @@ export function WhatsAppButton() {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {show && (
-          <motion.a
-            key="wa"
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Hablar por WhatsApp con ${siteConfig.owner} (se abre WhatsApp)`}
-            onClick={closeTip}
-            // Mismo estado inicial en servidor y navegador (evita errores de hidratación);
-            // con «reducir movimiento» la transición es instantánea.
-            initial={{ opacity: 0, scale: 0.4, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.6, y: 12, transition: { duration: reduce ? 0 : 0.2 } }}
-            transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 18, delay: onHome ? 0 : 1 }}
-            whileHover={reduce ? undefined : { scale: 1.08 }}
-            whileTap={{ scale: 0.94 }}
-            className="group pointer-events-auto relative grid size-16 place-items-center rounded-full bg-[#1FAF54] text-white shadow-[0_10px_30px_-8px_rgb(31_175_84/0.65)] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#1FAF54]"
-          >
-            {/* Ondas animadas */}
-            <span aria-hidden="true" className="wa-ring absolute inset-0 rounded-full bg-[#1FAF54]" />
-            <span aria-hidden="true" className="wa-ring wa-ring-delay absolute inset-0 rounded-full bg-[#1FAF54]" />
-            <span aria-hidden="true" className="wa-wiggle relative">
-              <IconWhatsApp size={32} />
-            </span>
-          </motion.a>
-        )}
-      </AnimatePresence>
+      <motion.a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Hablar por WhatsApp con ${siteConfig.owner} (se abre WhatsApp)`}
+        onClick={closeTip}
+        // Mismo estado inicial en servidor y navegador (evita errores de hidratación);
+        // con «reducir movimiento» la transición es instantánea.
+        initial={{ opacity: 0, scale: 0.4, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 18, delay: onHome ? 2.6 : 1 }}
+        whileHover={reduce ? undefined : { scale: 1.08 }}
+        whileTap={{ scale: 0.94 }}
+        className="group pointer-events-auto relative grid size-16 place-items-center rounded-full bg-[#1FAF54] text-white shadow-[0_10px_30px_-8px_rgb(31_175_84/0.65)] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#1FAF54]"
+      >
+        {/* Ondas animadas */}
+        <span aria-hidden="true" className="wa-ring absolute inset-0 rounded-full bg-[#1FAF54]" />
+        <span aria-hidden="true" className="wa-ring wa-ring-delay absolute inset-0 rounded-full bg-[#1FAF54]" />
+        <span aria-hidden="true" className="wa-wiggle relative">
+          <IconWhatsApp size={32} />
+        </span>
+      </motion.a>
     </div>
   );
 }

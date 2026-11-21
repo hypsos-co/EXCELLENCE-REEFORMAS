@@ -27,7 +27,7 @@ export const siteConfig = {
 
   contact: {
     /** Teléfono visible en la web. Ejemplo: "+34 600 000 000". */
-    phone: "",
+    phone: "+34 605 31 70 71",
     /**
      * Número de WhatsApp en formato internacional SOLO con dígitos
      * (sin "+", espacios ni guiones). Ejemplo: "34600000000".
@@ -35,9 +35,9 @@ export const siteConfig = {
      * También se puede definir sin tocar el código con la variable de entorno
      * NEXT_PUBLIC_WHATSAPP_NUMBER (por ejemplo, en Netlify) y volviendo a publicar.
      */
-    whatsapp: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "",
+    whatsapp: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "34605317071",
     /** Email público de contacto. Ejemplo: "info@excellencereformas.es". */
-    email: "",
+    email: "excellencereformas.7@gmail.com",
   },
 
   /** Mensaje con el que se abre WhatsApp desde el botón flotante de la web. */
@@ -100,6 +100,15 @@ export const siteConfig = {
       "San Fernando de Henares",
       "Torrejón de Ardoz",
       "Alcalá de Henares",
+      "Torrejón de la Calzada",
+      "Torrejón de Velasco",
+      "Griñón",
+      "Casarrubuelos",
+      "Cubas de la Sagra",
+      "Humanes de Madrid",
+      "Serranillos del Valle",
+      "Batres",
+      "Moraleja de Enmedio",
     ],
   },
 
@@ -108,10 +117,10 @@ export const siteConfig = {
    * OBLIGATORIO completarlos antes de publicar la web.
    */
   legal: {
-    holder: "", // Nombre y apellidos o razón social
-    taxId: "", // NIF / CIF
-    address: "", // Domicilio
-    privacyEmail: "", // Email para ejercer derechos (si vacío, se usa contact.email)
+    holder: "Júlio César Gonçalves", // Nombre y apellidos o razón social
+    taxId: "X9719412A", // NIF / NIE / CIF
+    address: "Torrejón de la Calzada, Madrid", // Domicilio
+    privacyEmail: "excellencereformas.7@gmail.com", // Email para ejercer derechos (si vacío, se usa contact.email)
     /** Meses que se conservan las solicitudes que no se convierten en encargo. */
     retentionMonths: 12,
     /** Cambia esta fecha cada vez que modifiques la política de privacidad. */

@@ -14,6 +14,8 @@ import {
   type EmailMessage,
 } from "@/lib/email/templates";
 import { esc, rows, section, shell, hero } from "@/lib/email/layout";
+import { canPublish, moderationUrl, newReviewId, signAction, toPublicReview } from "@/lib/reviews/public";
+import type { ReviewStore } from "./reviews-store";
 
 /**
  * Lógica de la función de Netlify `formularios` (evento formSubmitted):
@@ -28,9 +30,11 @@ export type HandlerDeps = {
   fetchImpl?: typeof fetch;
   now?: () => Date;
   log?: (msg: string, extra?: unknown) => void;
+  /** Opiniones públicas: dónde se guardan y URL del sitio para el enlace «Ocultar». */
+  reviews?: { store: ReviewStore; siteUrl?: string };
 };
 
-export type HandlerResult = { form: string; sent: string[]; skipped?: string };
+export type HandlerResult = { form: string; sent: string[]; skipped?: string; published?: boolean };
 
 const MAX_PHOTO_BYTES = 8 * 1024 * 1024;
 const MAX_TOTAL_BYTES = 18 * 1024 * 1024;
@@ -41,8 +45,10 @@ export function depsFromEnv(get: (k: string) => string | undefined): HandlerDeps
   const from = get("MAIL_FROM") || get("SMTP_USER");
   const port = Number(get("SMTP_PORT") || 587);
   const secureRaw = get("SMTP_SECURE");
+  // Con usuario pero sin contraseña (p. ej., falta la contraseña de aplicación de Gmail) no se intenta enviar.
+  const ready = !!host && !!from && !(get("SMTP_USER") && !get("SMTP_PASS"));
   return {
-    smtp: host && from ? { host, port, secure: secureRaw ? secureRaw === "true" : port === 465, user: get("SMTP_USER") || undefined, pass: get("SMTP_PASS") || undefined, from } : null,
+    smtp: ready ? { host, port, secure: secureRaw ? secureRaw === "true" : port === 465, user: get("SMTP_USER") || undefined, pass: get("SMTP_PASS") || undefined, from } : null,
     notifyTo: to,
     confirmClient: get("SEND_CLIENT_CONFIRMATION") !== "false",
   };
@@ -119,18 +125,42 @@ function genericEmail(form: string, data: Record<string, unknown>, when: string)
   };
 }
 
+/** Guarda la opinión si el cliente autorizó publicarla. Devuelve el enlace para ocultarla. */
+async function publishReview(payload: unknown, deps: HandlerDeps, now: Date, log: (m: string, e?: unknown) => void) {
+  if (!deps.reviews) return null;
+  const parsed = feedbackSchema.safeParse(payload);
+  if (!parsed.success || !canPublish(parsed.data)) return null;
+  try {
+    const review = toPublicReview(parsed.data, newReviewId(), now);
+    await deps.reviews.store.save(review);
+    let hideUrl: string | undefined;
+    if (deps.reviews.siteUrl) {
+      const secret = await deps.reviews.store.secret();
+      hideUrl = moderationUrl(deps.reviews.siteUrl, review.id, "ocultar", await signAction(secret, review.id, "ocultar"));
+    }
+    return { review, hideUrl };
+  } catch (err) {
+    log("No se pudo guardar la opinión pública", err);
+    return null;
+  }
+}
+
 export async function handleFormSubmission(data: Record<string, unknown>, deps: HandlerDeps): Promise<HandlerResult> {
   const form = formNameOf(data);
   const log = deps.log ?? ((m: string, e?: unknown) => console.error(`[formularios] ${m}`, e ?? ""));
-  if (!deps.smtp || !deps.notifyTo.length) {
-    log("SMTP o NOTIFY_EMAIL_TO sin configurar: no se envían emails visuales (Netlify sigue guardando el envío).");
-    return { form, sent: [], skipped: "not_configured" };
-  }
   if (str(data["bot-field"])) return { form, sent: [], skipped: "spam" };
 
-  const smtp = deps.smtp;
   const now = deps.now?.() ?? new Date();
   const when = madrid(now);
+  const payload = parseJson(data.datos_json);
+  // La opinión se publica aunque el email todavía no esté configurado.
+  const published = form === "valoracion" ? await publishReview(payload, deps, now, log) : null;
+
+  if (!deps.smtp || !deps.notifyTo.length) {
+    log("SMTP o NOTIFY_EMAIL_TO sin configurar: no se envían emails visuales (Netlify sigue guardando el envío).");
+    return { form, sent: [], skipped: "not_configured", published: !!published };
+  }
+  const smtp = deps.smtp;
   const sent: string[] = [];
   const send = async (message: EmailMessage, to: string[], tag: string) => {
     try {
@@ -141,7 +171,6 @@ export async function handleFormSubmission(data: Record<string, unknown>, deps: 
       if (tag === "empresa") throw err; // Netlify registra el fallo de la función
     }
   };
-  const payload = parseJson(data.datos_json);
 
   if (form === "solicitud-presupuesto") {
     const parsed = budgetRequestSchema.safeParse(payload);
@@ -158,7 +187,7 @@ export async function handleFormSubmission(data: Record<string, unknown>, deps: 
       request,
     };
     const photos = await collectPhotos(data, ["foto_1", "foto_2", "foto_3", "foto_4", "foto_5", "foto_6"], record.reference, deps);
-    await send(buildBudgetNotification(record, photos.attachments, photos.links), deps.notifyTo, "empresa");
+    await send(buildBudgetNotification(record, photos.attachments, photos.links, now), deps.notifyTo, "empresa");
     if (deps.confirmClient) await send(buildBudgetConfirmation(record), [request.contact.email], "cliente");
     return { form, sent };
   }
@@ -170,9 +199,9 @@ export async function handleFormSubmission(data: Record<string, unknown>, deps: 
       return { form, sent };
     }
     const f = parsed.data;
-    await send(buildFeedbackNotification(f, when), deps.notifyTo, "empresa");
+    await send(buildFeedbackNotification(f, when, published ? { hideUrl: published.hideUrl } : undefined), deps.notifyTo, "empresa");
     if (deps.confirmClient && f.email) await send(buildFeedbackThanks(f), [f.email], "cliente");
-    return { form, sent };
+    return { form, sent, published: !!published };
   }
 
   if (form === "posventa") {
@@ -183,7 +212,7 @@ export async function handleFormSubmission(data: Record<string, unknown>, deps: 
     }
     const a = parsed.data;
     const photos = await collectPhotos(data, ["foto_1", "foto_2", "foto_3"], "posventa", deps);
-    await send(buildAftercareNotification(a, when, photos.attachments, photos.links), deps.notifyTo, "empresa");
+    await send(buildAftercareNotification(a, when, photos.attachments, photos.links, now), deps.notifyTo, "empresa");
     if (deps.confirmClient && a.email) await send(buildAftercareConfirmation(a), [a.email], "cliente");
     return { form, sent };
   }

@@ -1,6 +1,8 @@
-# Despliegue en Netlify como web HTML estática (carpeta `out/`).
-# Las solicitudes de presupuesto se reciben con Netlify Forms:
-# activa «Forms → Enable form detection» en el panel de Netlify (una vez).
+# Despliegue en Netlify como web HTML estática (carpeta `out/`) + funciones.
+# - Formularios: Netlify Forms (activado en el proyecto).
+# - netlify/functions/formularios.mts: emails visuales y guarda las opiniones.
+# - netlify/functions/opiniones.mts: /api/opiniones para la portada.
+# Despliega desde Git o con la CLI: arrastrar la carpeta `out/` NO publica las funciones.
 
 [build]
   command = "npm run build:netlify"
@@ -11,3 +13,7 @@
   # Es una exportación estática: no usar el adaptador de Next.js de Netlify.
   NETLIFY_NEXT_PLUGIN_SKIP = "true"
   NEXT_TELEMETRY_DISABLED = "1"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"

@@ -177,7 +177,7 @@ export function HeroNight() {
           </div>
         </div>
 
-        <div className="absolute inset-x-5 bottom-[max(1.75rem,env(safe-area-inset-bottom))] flex items-center justify-center gap-4 text-[11px] font-semibold tracking-[0.16em] text-white/80 uppercase sm:inset-x-auto sm:right-11 sm:bottom-11 sm:text-xs">
+        <div className="absolute bottom-[max(1.75rem,env(safe-area-inset-bottom))] left-5 flex items-center gap-4 text-[11px] font-semibold tracking-[0.16em] text-white/80 uppercase sm:left-auto sm:right-30 sm:bottom-11 sm:text-xs">
           <span>Desliza para explorar</span>
           <i aria-hidden="true" className="h-6 w-px bg-white/40" />
           <button

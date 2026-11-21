@@ -67,6 +67,12 @@ export default function PrivacyPage() {
                 Para estudiar tu solicitud, ponernos en contacto contigo (por teléfono, WhatsApp o email) y, en su caso, preparar un presupuesto
                 personalizado. No tomamos decisiones automatizadas ni elaboramos perfiles con tus datos.
               </p>
+              <p className="mt-3">
+                <strong>Opiniones en la web.</strong> Si al enviar tu valoración marcas la casilla que lo autoriza, publicaremos en nuestra web tu
+                nombre con la inicial del apellido, tu puntuación, tu comentario y la fecha. La base legal es tu consentimiento. Si en el
+                comentario aparecen emails, teléfonos o enlaces, los retiramos antes de publicarlo. Puedes retirar tu consentimiento y pedirnos que
+                la quitemos en cualquier momento escribiendo a {rightsEmail || "nuestro email de contacto"}.
+              </p>
             </Block>
 
             <Block title="4. Base legal">

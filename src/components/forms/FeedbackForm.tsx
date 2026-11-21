@@ -262,6 +262,14 @@ function Thanks({ feedback: f, socials, refEl }: { feedback: Feedback; socials: 
           ? "Nos alegra muchísimo que estés contento. Tu opinión nos ayuda a seguir cuidando cada detalle."
           : `${siteConfig.owner} ha recibido tu valoración y quiere que todo vaya bien.${f.callback ? " Te contactaremos para hablarlo." : ""}`}
       </p>
+      {f.publish && f.name && (
+        <p className="mt-4 max-w-xl rounded-2xl bg-white/10 px-4 py-3 text-[15px] leading-relaxed text-white/90 ring-1 ring-white/15">
+          Tu opinión aparecerá en nuestra web en unos minutos, con tu nombre y la inicial de tu apellido.{" "}
+          <Link href="/#opiniones" className="font-bold underline underline-offset-4">
+            Ver opiniones
+          </Link>
+        </p>
+      )}
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         {wa && (
           <a href={wa} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-13 items-center justify-center gap-2.5 rounded-full bg-[#1FAF54] px-6 font-extrabold text-white">

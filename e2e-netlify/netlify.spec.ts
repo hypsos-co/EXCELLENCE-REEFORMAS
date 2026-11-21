@@ -139,6 +139,25 @@ test("valoración: se envía a Netlify Forms y adapta el agradecimiento", async 
   expect(JSON.parse(s.fields.datos_json)).toMatchObject({ rating: 2, care: "no", callback: true });
 });
 
+test("valoración con permiso: queda publicada en la portada", async ({ page }) => {
+  const comment = `Muy contentos con la reforma del baño (ref. ${Date.now().toString(36)}).`;
+  await page.goto("/valoracion", { waitUntil: "networkidle" });
+  await choose(page, 'input[name=rating][value="5"]');
+  await choose(page, 'input[name=care][value="si"]');
+  await page.fill("#fb-comment", comment);
+  await page.fill("#fb-name", "Laura Sánchez");
+  await page.locator("#fb-publish").check();
+  await page.locator("#fb-privacy").check();
+  await page.getByRole("button", { name: /Enviar mi valoración/i }).click();
+  await expect(page.getByText(/Tu opinión aparecerá en nuestra web/)).toBeVisible();
+  await page.goto("/", { waitUntil: "networkidle" });
+  const reviews = page.locator("#opiniones");
+  await expect(reviews.getByText(comment)).toBeVisible();
+  await expect(reviews.getByText("Laura S.").first()).toBeVisible();
+  // La valoración de Ana (sin permiso) no se publica
+  await expect(reviews.getByText("La obra va más lenta de lo esperado.")).toHaveCount(0);
+});
+
 test("posventa: la consulta con foto llega a Netlify Forms", async ({ page }) => {
   await page.goto("/clientes", { waitUntil: "networkidle" });
   await choose(page, 'input[name=ac-kind][value="arreglo"]');

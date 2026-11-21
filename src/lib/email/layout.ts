@@ -17,7 +17,13 @@ export const C = {
   redBg: "#FDECEA",
   redInk: "#8A1C14",
   green: "#1FAF54",
+  greenBg: "#E8F6EE",
+  greenInk: "#14532D",
 };
+
+type Tone = "info" | "warn" | "alert" | "good";
+const toneBg = (t?: Tone) => (t === "warn" ? C.amberBg : t === "alert" ? C.redBg : t === "good" ? C.greenBg : C.mist50);
+const toneInk = (t: Tone | undefined, fallback: string) => (t === "warn" ? C.amberInk : t === "alert" ? C.redInk : t === "good" ? C.greenInk : fallback);
 
 const FONT = "Arial,Helvetica,sans-serif";
 
@@ -72,10 +78,10 @@ export function buttons(items: string[]) {
 }
 
 /** Rejilla de datos clave (2 columnas). */
-export function tiles(items: { label: string; value: string; tone?: "warn" | "alert" }[]) {
+export function tiles(items: { label: string; value: string; tone?: Exclude<Tone, "info"> }[]) {
   const cells = items.map((t) => {
-    const bg = t.tone === "warn" ? C.amberBg : t.tone === "alert" ? C.redBg : C.mist50;
-    const ink = t.tone === "warn" ? C.amberInk : t.tone === "alert" ? C.redInk : C.navy;
+    const bg = toneBg(t.tone);
+    const ink = toneInk(t.tone, C.navy);
     return `<td width="50%" valign="top" style="padding:6px;">
       <div style="background:${bg};border-radius:12px;padding:13px 14px;">
         <div style="font:700 10px/1.3 ${FONT};letter-spacing:.12em;text-transform:uppercase;color:${C.steelInk};">${esc(t.label)}</div>
@@ -103,9 +109,9 @@ export function rows(items: { label: string; value: string }[]) {
     .join("")}</table>`;
 }
 
-export function note(text: string, tone: "info" | "warn" | "alert" = "info") {
-  const bg = tone === "warn" ? C.amberBg : tone === "alert" ? C.redBg : C.mist50;
-  const ink = tone === "warn" ? C.amberInk : tone === "alert" ? C.redInk : C.steelInk;
+export function note(text: string, tone: Tone = "info") {
+  const bg = toneBg(tone);
+  const ink = toneInk(tone, C.steelInk);
   return `<p style="margin:10px 0 0;padding:12px 14px;border-radius:10px;background:${bg};font:400 13px/1.55 ${FONT};color:${ink};">${escMultiline(text)}</p>`;
 }
 
@@ -143,4 +149,28 @@ export function steps(items: { title: string; text: string }[]) {
         <div style="font:400 14px/1.55 ${FONT};color:${C.steelInk};">${esc(s.text)}</div></td></tr>`,
     )
     .join("")}</table>`;
+}
+
+/** Lista con viñetas. */
+export function bullets(items: string[]) {
+  if (!items.length) return "";
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${items
+    .map(
+      (t) => `<tr><td width="22" valign="top" style="padding:6px 0;font:700 15px/1.5 ${FONT};color:${C.steel};">&#8226;</td>
+      <td valign="top" style="padding:6px 0;font:400 14px/1.55 ${FONT};color:${C.navy};">${esc(t)}</td></tr>`,
+    )
+    .join("")}</table>`;
+}
+
+/** Aviso destacado a lo ancho (prioridad del contacto, alertas). */
+export function banner(title: string, text: string, tone: Tone = "info") {
+  return `<tr><td style="padding:16px 28px 0;"><div style="padding:14px 16px;border-radius:12px;background:${toneBg(tone)};">
+    <div style="font:800 15px/1.4 ${FONT};color:${toneInk(tone, C.navy)};">${esc(title)}</div>
+    ${text ? `<div style="margin-top:4px;font:400 13px/1.55 ${FONT};color:${toneInk(tone, C.steelInk)};">${esc(text)}</div>` : ""}
+  </div></td></tr>`;
+}
+
+/** Bloque de texto para copiar (mensaje ya redactado). */
+export function draft(text: string) {
+  return `<div style="margin-top:6px;padding:14px 16px;border:1px dashed ${C.steelSoft};border-radius:12px;font:400 14px/1.6 ${FONT};color:${C.navy};">${escMultiline(text)}</div>`;
 }

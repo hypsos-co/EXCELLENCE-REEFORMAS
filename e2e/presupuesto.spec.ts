@@ -167,11 +167,10 @@ test("portada nocturna: titular, botón al asistente y sonido desactivado por de
   await expect(page).toHaveURL(/\/solicitar-presupuesto$/);
 });
 
-test("la portada presenta a Julio César y no muestra opiniones si no hay reales", async ({ page }) => {
+test("la portada presenta a Julio César", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: /Hola, soy Julio César/i })).toBeVisible();
   await expect(page.getByAltText(/Julio César, de Excellence Reformas/)).toBeVisible();
-  await expect(page.locator("#opiniones")).toHaveCount(0);
 });
 
 test("showroom: filtra por tipo, abre el visor y lleva al asistente", async ({ page }) => {
@@ -205,10 +204,9 @@ test("showroom: filtra por tipo, abre el visor y lleva al asistente", async ({ p
 test("botón flotante de WhatsApp: abre el número configurado y no estorba en el asistente", async ({ page }) => {
   await page.goto("/", { waitUntil: "networkidle" });
   const fab = page.getByRole("link", { name: /Hablar por WhatsApp con Julio César/ });
-  // En la portada aparece al bajar de la escena nocturna.
-  await expect(fab).toHaveCount(0);
-  await page.evaluate(() => window.scrollTo(0, window.innerHeight));
   await expect(fab).toBeVisible();
+  // En la portada, el aviso «¿Hablamos?» espera a que se baje de la escena nocturna.
+  await page.evaluate(() => window.scrollTo(0, window.innerHeight));
   const href = await fab.getAttribute("href");
   expect(href).toMatch(/^https:\/\/wa\.me\/34600000000\?text=/);
   expect(decodeURIComponent(href!.split("text=")[1])).toContain("vengo de la web de Excellence Reformas");
@@ -221,12 +219,21 @@ test("valoración (versión con servidor): se guarda y muestra el agradecimiento
   await page.goto("/valoracion", { waitUntil: "networkidle" });
   await page.locator("label").filter({ has: page.locator('input[name=rating][value="5"]') }).click();
   await page.locator("label").filter({ has: page.locator('input[name=care][value="si"]') }).click();
+  const comment = `Trabajo impecable y muy limpios (ref. ${Date.now().toString(36)}).`;
+  await page.fill("#fb-comment", comment);
   await page.fill("#fb-name", "Marta García");
   await page.locator("#fb-publish").check();
   await page.locator("#fb-privacy").check();
   await page.getByRole("button", { name: /Enviar mi valoración/i }).click();
   await expect(page.getByRole("heading", { name: /¡Gracias, Marta!/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /Escríbenos por WhatsApp/ })).toBeVisible();
+  await expect(page.getByText(/Tu opinión aparecerá en nuestra web/)).toBeVisible();
   const dirs = await readdir(path.join(DATA_DIR, "valoraciones"), { recursive: true });
   expect(dirs.some((d) => String(d).endsWith("valoracion.json"))).toBe(true);
+  // Se guarda de forma permanente y aparece en la portada con nombre e inicial
+  await page.goto("/", { waitUntil: "networkidle" });
+  const reviews = page.locator("#opiniones");
+  await expect(reviews.getByText(comment)).toBeVisible();
+  await expect(reviews.getByText("Marta G.").first()).toBeVisible();
+  await expect(reviews.getByText(/Publicamos todas las que el cliente autoriza/)).toBeVisible();
 });

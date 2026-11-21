@@ -18,6 +18,8 @@ import { displayName, sniffImage } from "@/lib/server/files";
 import { RateLimiter, clientIp } from "@/lib/server/rate-limit";
 import { formatMadrid } from "@/lib/server/record";
 import { createStorage, putJson } from "@/lib/server/storage";
+import { storageReviewStore } from "@/lib/server/reviews";
+import { canPublish, moderationUrl, newReviewId, signAction, toPublicReview } from "@/lib/reviews/public";
 
 /**
  * POST /api/formularios (versión con servidor): valoraciones y posventa.
@@ -86,7 +88,16 @@ export async function POST(request: NextRequest) {
       const f = parsed.data;
       const base = `valoraciones/${yyyy}/${mm}/${id}`;
       await putJson(storage, `${base}/valoracion.json`, { id, receivedAt: now.toISOString(), receivedAtMadrid: when, feedback: f });
-      await deliver(base, buildFeedbackNotification(f, when), f.email ? buildFeedbackThanks(f) : null, f.email);
+      // Opinión pública (solo si el cliente lo autoriza): se guarda de forma permanente y aparece en la portada.
+      let published: { hideUrl?: string } | undefined;
+      if (canPublish(f)) {
+        const reviews = storageReviewStore(storage);
+        const review = toPublicReview(f, newReviewId(), now);
+        await reviews.save(review);
+        const origin = new URL(request.url).origin;
+        published = { hideUrl: moderationUrl(origin, review.id, "ocultar", await signAction(await reviews.secret(), review.id, "ocultar")) };
+      }
+      await deliver(base, buildFeedbackNotification(f, when, published), f.email ? buildFeedbackThanks(f) : null, f.email);
       return json(201, { ok: true });
     }
     if (kind === "posventa") {
