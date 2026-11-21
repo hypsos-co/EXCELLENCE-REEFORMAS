@@ -186,3 +186,29 @@ test("showroom: filtra por tipo, abre el visor y lleva al asistente", async ({ p
   await expect(page).toHaveURL(/solicitar-presupuesto\?tipo=bano/);
   await expect(page.locator('input[name=reform][value="bano"]')).toBeChecked();
 });
+
+test("botón flotante de WhatsApp: abre el número configurado y no estorba en el asistente", async ({ page }) => {
+  await page.goto("/", { waitUntil: "networkidle" });
+  const fab = page.getByRole("link", { name: /Hablar por WhatsApp con Julio César/ });
+  await expect(fab).toBeVisible();
+  const href = await fab.getAttribute("href");
+  expect(href).toMatch(/^https:\/\/wa\.me\/34600000000\?text=/);
+  expect(decodeURIComponent(href!.split("text=")[1])).toContain("vengo de la web de Excellence Reformas");
+  await expect(page.getByText("¿Hablamos?")).toBeVisible({ timeout: 8000 });
+  await page.goto("/solicitar-presupuesto", { waitUntil: "networkidle" });
+  await expect(page.getByRole("link", { name: /Hablar por WhatsApp con Julio César/ })).toHaveCount(0);
+});
+
+test("valoración (versión con servidor): se guarda y muestra el agradecimiento", async ({ page }) => {
+  await page.goto("/valoracion", { waitUntil: "networkidle" });
+  await page.locator("label").filter({ has: page.locator('input[name=rating][value="5"]') }).click();
+  await page.locator("label").filter({ has: page.locator('input[name=care][value="si"]') }).click();
+  await page.fill("#fb-name", "Marta García");
+  await page.locator("#fb-publish").check();
+  await page.locator("#fb-privacy").check();
+  await page.getByRole("button", { name: /Enviar mi valoración/i }).click();
+  await expect(page.getByRole("heading", { name: /¡Gracias, Marta!/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Escríbenos por WhatsApp/ })).toBeVisible();
+  const dirs = await readdir(path.join(DATA_DIR, "valoraciones"), { recursive: true });
+  expect(dirs.some((d) => String(d).endsWith("valoracion.json"))).toBe(true);
+});

@@ -82,7 +82,7 @@ test("todas las páginas y fotos cargan sin errores", async ({ page }) => {
     if (r.status() >= 400) failed.push(`${r.status()} ${r.url()}`);
   });
   page.on("pageerror", (e) => failed.push(`pageerror ${e.message}`));
-  for (const url of ["/", "/showroom", "/solicitar-presupuesto", "/politica-de-privacidad"]) {
+  for (const url of ["/", "/showroom", "/solicitar-presupuesto", "/clientes", "/valoracion", "/politica-de-privacidad"]) {
     await page.goto(url, { waitUntil: "networkidle" });
     for (let y = 0; y < 14000; y += 900) {
       await page.mouse.wheel(0, 900);
@@ -109,4 +109,62 @@ test("el showroom funciona en la versión estática", async ({ page }) => {
 test("una dirección inexistente muestra la página 404", async ({ page }) => {
   const res = await page.goto("/no-existe");
   expect(res?.status()).toBe(404);
+});
+
+async function findForm(form: string, predicate: (s: { fields: Record<string, string>; files: Record<string, unknown> }) => boolean) {
+  for (const dir of (await readdir(DATA_DIR)).sort().reverse()) {
+    const s = JSON.parse(await readFile(path.join(DATA_DIR, dir, "submission.json"), "utf8"));
+    if (s.fields["form-name"] === form && predicate(s)) return s;
+  }
+  throw new Error(`No se recibió el formulario ${form}`);
+}
+
+test("valoración: se envía a Netlify Forms y adapta el agradecimiento", async ({ page }) => {
+  await page.goto("/valoracion", { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: /Enviar mi valoración/i }).click();
+  await expect(page.getByText("Elige de 1 a 5 estrellas.")).toBeVisible();
+  await choose(page, 'input[name=rating][value="2"]');
+  await choose(page, 'input[name=care][value="no"]');
+  await expect(page.getByText("Sentimos que algo no esté yendo bien.")).toBeVisible();
+  await page.fill("#fb-comment", "La obra va más lenta de lo esperado.");
+  await page.locator("#fb-callback").check();
+  await page.fill("#fb-name", "Ana López");
+  await page.fill("#fb-phone", "611 222 333");
+  await page.locator("#fb-privacy").check();
+  await page.getByRole("button", { name: /Enviar mi valoración/i }).click();
+  await expect(page.getByRole("heading", { name: /Gracias por contárnoslo, Ana/ })).toBeVisible();
+  const s = await findForm("valoracion", (x) => x.fields.nombre === "Ana López");
+  expect(s.fields.estrellas).toBe("★★☆☆☆");
+  expect(s.fields.quiere_llamada).toBe("Sí");
+  expect(JSON.parse(s.fields.datos_json)).toMatchObject({ rating: 2, care: "no", callback: true });
+});
+
+test("posventa: la consulta con foto llega a Netlify Forms", async ({ page }) => {
+  await page.goto("/clientes", { waitUntil: "networkidle" });
+  await choose(page, 'input[name=ac-kind][value="arreglo"]');
+  await page.fill("#ac-description", "Una puerta del armario roza al cerrar.");
+  await choose(page, 'input[name=ac-urgency][value="pronto"]');
+  await page.locator('#posventa input[type=file]').setInputFiles([PHOTOS[0]]);
+  await expect(page.getByRole("button", { name: "Eliminar foto 1" })).toBeVisible();
+  await expect(page.getByText("Optimizando…")).toHaveCount(0, { timeout: 15_000 });
+  await page.fill("#ac-name", "Pedro Ruiz");
+  await page.fill("#ac-phone", "622 333 444");
+  await page.locator("#ac-privacy").check();
+  await page.getByRole("button", { name: /Enviar consulta/i }).click();
+  await expect(page.getByRole("heading", { name: /Recibido, Pedro/ })).toBeVisible();
+  const s = await findForm("posventa", (x) => x.fields.nombre === "Pedro Ruiz");
+  expect(s.fields.tipo_ayuda).toBe("Pequeño arreglo");
+  expect(s.fields.urgencia).toBe("Lo antes posible");
+  expect(Object.keys(s.files)).toEqual(["foto_1"]);
+});
+
+test("la app es instalable: manifest, iconos y service worker publicados", async ({ page, request }) => {
+  await page.goto("/clientes", { waitUntil: "networkidle" });
+  const manifestHref = await page.locator('link[rel="manifest"]').getAttribute("href");
+  expect(manifestHref).toBe("/manifest.webmanifest");
+  const manifest = await (await request.get(manifestHref!)).json();
+  expect(manifest.display).toBe("standalone");
+  for (const icon of manifest.icons) expect((await request.get(icon.src)).status()).toBe(200);
+  expect((await request.get("/sw.js")).status()).toBe(200);
+  await expect.poll(() => page.evaluate(async () => !!(await navigator.serviceWorker?.getRegistration())), { timeout: 10_000 }).toBe(true);
 });

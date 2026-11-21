@@ -19,6 +19,13 @@ export default defineConfig({
     url: `http://localhost:${PORT}/solicitar-presupuesto`,
     reuseExistingServer: false,
     timeout: 120_000,
-    env: { STORAGE_DRIVER: "local", DATA_DIR: E2E_DATA_DIR, RATE_LIMIT_MAX: "1000", NEXT_TELEMETRY_DISABLED: "1" },
+    env: {
+      STORAGE_DRIVER: "local",
+      DATA_DIR: E2E_DATA_DIR,
+      RATE_LIMIT_MAX: "1000",
+      NEXT_TELEMETRY_DISABLED: "1",
+      // Número ficticio solo para las pruebas del botón de WhatsApp.
+      NEXT_PUBLIC_WHATSAPP_NUMBER: "34600000000",
+    },
   },
 });
